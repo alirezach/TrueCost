@@ -1,66 +1,69 @@
-# Iranian Lifetime Calculator
+# True Cost
 
+**True Cost** is a Chrome extension that converts product prices on Iranian online shops into the **hours or days of work** they actually cost you, based on your hourly wage.
 
+افزونه‌ای که قیمت کالاها را بر اساس دستمزد ساعتی شما به «ساعت یا روز کار» تبدیل می‌کند تا **هزینه‌ی واقعی** هر خرید را قبل از خریدن ببینید.
 
-اکستنشن تبدیل مبلغ کالا به ساعت/دستمزد
+> نسخه 3.x: افزونه برای **Manifest V3** بازنویسی شد (نسخه‌ی قدیمی Manifest V2 توسط کروم غیرفعال شده است). جزئیات کامل تغییرات و نقشه راه توسعه در [PLAN.md](./PLAN.md) موجود است.
 
-در چندین وبسایت معروف ایرانی مثل:
+## Supported sites / سایت‌های پشتیبانی‌شده
 
+- [digikala.com](https://www.digikala.com)
+- [torob.com](https://torob.com)
+- [emalls.ir](https://emalls.ir)
+- [technolife.com](https://www.technolife.com)
+- [okala.com](https://www.okala.com)
+- [tapsi.shop](https://tapsi.shop)
+- [snappfood.ir](https://snappfood.ir)
+- [bama.ir](https://bama.ir)
+- [divar.ir](https://divar.ir)
 
-[digikala.com](https://www.digikala.com)
+Note: support for dead/closed shops (Bamilo, Reyhoon, Digistyle, Modiseh, Shixon, Banimode) has been removed.
 
-[Bamilo.com](https://www.bamilo.com)
+## Collaborative site database / پایگاه داده مشارکتی
 
-[Torob.com](https://torob.com)
+CSS selectors for every supported site live in [`data/sites.csv`](https://github.com/alirezach/TrueCost/blob/master/data/sites.csv) — a simple table that anyone can improve:
 
-[Emalls.ir](https://emalls.ir)
+- When a site redesigns and prices stop converting, anyone can open a Pull Request with the new selectors.
+- The extension checks this file weekly (via the tiny [`data/sites-meta.json`](https://github.com/alirezach/TrueCost/blob/master/data/sites-meta.json)) and shows an **"Update available"** hint in Settings — your working selectors are never replaced without your confirmation.
+- The suggested **minimum wage dataset** is also community-maintained in [`data/wage-dataset.json`](https://github.com/alirezach/TrueCost/blob/master/data/wage-dataset.json).
 
-[Reyhoon.com](https://www.reyhoon.com)
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for the column reference and workflow.
 
-[Bama.ir](https://bama.ir)
+## Features
 
-[Digistyle.com](https://www.digistyle.com)
+- Manifest V3, no jQuery, no external requests except the wage/selector dataset fetch from GitHub
+- Automatic price detection via per-site selectors, JSON-LD structured data, and a generic currency-word scan
+- **Manual mode**: pick a price element on any site (like browser DevTools) and save it as a personal selector — or send it to the repo as a pre-filled GitHub issue
+- Persian / English UI with self-hosted [Vazirmatn](https://github.com/rastikerdar/vazirmatn) font
+- Toman / Rial currency switch, hourly wage with smart dataset suggestions
 
-[Modiseh.com](https://www.modiseh.com)
+## Development
 
-[Divar.ir](https://divar.ir)
+```bash
+git clone https://github.com/alirezach/TrueCost.git
+cd TrueCost
+npm install
+npm test          # unit tests (vitest)
+npm run crawl     # re-crawl live sites and diff selectors (dev helper)
+```
 
-[Snappfood.ir](https://snappfood.ir)
+Load in Chrome: `chrome://extensions` → enable **Developer mode** → **Load unpacked** → select the repo folder.
 
-[Shixon.com](https://www.shixon.com)
+## Idea & History / ایده و تاریخچه
 
-[Banimode.com](https://www.banimode.com)
+Behind every price tag there is a hidden number: **how many hours of your life you have to trade for it**. True Cost surfaces that number — it converts prices into hours or days of work based on your hourly wage, so the real cost of a purchase is visible before you buy.
 
+پشت هر برچسب قیمتی یک عدد پنهان وجود دارد: اینکه باید **چند ساعت از زندگیت** را برای آن معامله کنی. True Cost همین عدد را آشکار می‌کند؛ قیمت‌ها را بر اساس دستمزد ساعتی شما به «ساعت یا روز کار» تبدیل می‌کند تا هزینه‌ی واقعی هر خرید را قبل از خریدن ببینید.
 
+این پروژه ادامه و بازنویسی یک ایده‌ی قدیمی است:
 
------
+- **The original idea**: the *"عمر من" (My Lifetime)* concept — an extension that never shipped — shared publicly by [Javid Izadfar](https://twitter.com/JavidIzadfar). His article (in Persian): [«عمر من»: اکستنشنی که هیچوقت منتشر نمیکنم!](https://virgool.io/@JavidIzadfar/%D8%B9%D9%85%D8%B1-%D9%85%D9%86-%D8%A7%DA%A9%D8%B3%D8%AA%D9%86%D8%B4%D9%86%DB%8C-%DA%A9%D9%87-%D9%87%DB%8C%DA%86%D9%88%D9%82%D8%AA-%D9%85%D9%86%D8%AA%D8%B4%D8%B1-%D9%86%D9%85%DB%8C%DA%A9%D9%86%D9%85-ro0ruevctaio)
 
-![](https://files.virgool.io/upload/users/3676/posts/wqw1r1eomani/qi02ij4s7jog.png)
+- **The first implementation**: *Iranian Lifetime Calculator* was created in **2018 by [Mahmoud Eskandari](https://github.com/mahmoud-eskandari)** — the idea's first working implementation and the Chrome Web Store release are all his work. Original repository: [mahmoud-eskandari/IPTT](https://github.com/mahmoud-eskandari/IPTT) · [old Chrome Web Store listing](https://chrome.google.com/webstore/detail/iranian-lifetime-calculat/phoehnanhimojcbebjldknajipijlmhd). Early contributions by [Yahya SayadArbabi](https://github.com/TheYahya) (daily-calculation mode) and Hossein Marzban (UI). Mahmoud's article about the extension (in Persian): [اکستنشن کروم تبدیل قیمت به ساعت دستمزد](https://virgool.io/@mahmoudetc/%D8%A7%DA%A9%D8%B3%D8%AA%D9%86%D8%B4%D9%86-%DA%A9%D8%B1%D9%88%D9%85-%D8%AA%D8%A8%D8%AF%DB%8C%D9%84-%D9%82%DB%8C%D9%85%D8%AA-%D8%A8%D9%87-%D8%B3%D8%A7%D8%B9%D8%AA-%D8%AF%D8%B3%D8%AA%D9%85%D8%B2%D8%AF-m2saanql80wb)
 
-داستان ساخت این افزونه از اونجایی که شروع شد که جاوید ایزدفر یه تصویر از افزونه ای که اسمش رو گذاشته بود  "عمر من" با همین مضمون در توییتر منتشر کرد و من برام جالب شد این قضیه و دوست داشتم ریلیزش کنه و اما این کار رو نکرد.
+- **This continuation**: after the original extension stopped working (Manifest V2 deprecation), it was rebuilt from scratch as **True Cost** by [AliRezaCh](https://github.com/alirezach) — previously developed in the [alirezach/IPTT](https://github.com/alirezach/IPTT) repository.
 
-به شما هم پیشنهاد میکنم قبل از نصب افزونه مقاله زیر رو بخونید:
+## License
 
-* [«عمر من»: اکستنشنی که هیچوقت منتشر نمیکنم!](https://virgool.io/@JavidIzadfar/%D8%B9%D9%85%D8%B1-%D9%85%D9%86-%D8%A7%DA%A9%D8%B3%D8%AA%D9%86%D8%B4%D9%86%DB%8C-%DA%A9%D9%87-%D9%87%DB%8C%DA%86%D9%88%D9%82%D8%AA-%D9%85%D9%86%D8%AA%D8%B4%D8%B1-%D9%86%D9%85%DB%8C%DA%A9%D9%86%D9%85-ro0ruevctaio)
-
-نظر شخصی خودم بر این بود که این افزونه جنبه های دیگه ای هم داره و صرفاً همه رو افسرده و ناامید نمیکنه بلکه بسته به زاویه دید کاربر داره ، که خود من برام اصلا مهم نیست و بیشتر این کار باعث شده برام  ارزش وقت ملموس تر بشه.
-به هر حال خوب یا بد ، زشت یا زیبا این افزونه در دسترس شما قرار گرفته . امیدوارم نظرات خودتون رو بعد از استفاده به گوش من هم برسونید ♥
-طریقه ی استفاده:
-ابتدا از لینک زیر
-
-https://chrome.google.com/webstore/detail/iranian-lifetime-calculat/phoehnanhimojcbebjldknajipijlmhd
-
-اکستنشن را نصب کنید سپس طبق تصویر زیر بر روی آیکون افزونه کلیک کنید و میزان دستمزد خود را بر حسب ساعت/تومان وارد نمایید:
-
-![](https://files.virgool.io/upload/users/3676/posts/wqw1r1eomani/0ifkurcuijmb.png)
-
-تیک "محاسبه گر" اگر فعال باشد این اکستنشن کار میکند و به جای نمایش مبلغ در  وبسایتها میزان ساعت از عمرتون که باید کار کنید و این جنس رو بخرید رو نشون خواهد داد طبق تصویر اول.
-
-میزان به صورت ساعت:دقیقه مشخص شده است.
- اگر تیک محاسبه بر حسب روز فعال باشد تعداد روزهایی که باید کار کنید به جای ساعت به نمایش در خواهد آمد.
-
-
-این افزونه در نسخه اولیه میباشد لذا اگر باگ و اشکالی هست را در ریپازیتوری گیتهاب گزارش نمایید.
-* [Download from Chrome Webstore](https://chrome.google.com/webstore/detail/iranian-lifetime-calculat/phoehnanhimojcbebjldknajipijlmhd)
-
-*[لینک مقاله در ویرگول](https://virgool.io/@mahmoudetc/%D8%A7%DA%A9%D8%B3%D8%AA%D9%86%D8%B4%D9%86-%DA%A9%D8%B1%D9%88%D9%85-%D8%AA%D8%A8%D8%AF%DB%8C%D9%84-%D9%82%DB%8C%D9%85%D8%AA-%D8%A8%D9%87-%D8%B3%D8%A7%D8%B9%D8%AA-%D8%AF%D8%B3%D8%AA%D9%85%D8%B2%D8%AF-m2saanql80wb)
+[MIT](./LICENSE)

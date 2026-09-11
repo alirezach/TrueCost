@@ -1,47 +1,63 @@
 {
-  "name": "Iranian Lifetime Calculator",
-  "version": "2.0.3",
-  "description": "Price to Lifetime calculator for famous Iranian online markets.",
-  "short_name": "Lifetime Calculator",
+  "manifest_version": 3,
+  "name": "True Cost",
+  "version": "3.2.1",
+  "description": "Convert prices on Iranian shopping sites into hours or days of work based on your wage. See the true cost before you buy.",
+  "short_name": "TrueCost",
   "permissions": [
     "storage",
-    "tabs"
+    "alarms",
+    "activeTab",
+    "scripting"
   ],
-  "browser_action": {
-    "default_icon": "./assets/img/time.png",
+  "background": {
+    "service_worker": "assets/script/background.js"
+  },
+  "action": {
+    "default_icon": {
+      "16": "./assets/img/icons/truecost_16.png",
+      "32": "./assets/img/icons/truecost_32.png",
+      "48": "./assets/img/icons/truecost_48.png",
+      "128": "./assets/img/icons/truecost_128.png"
+    },
     "default_popup": "popup.html"
   },
-  "icons": {
-    "16": "./assets/img/icons/time_16.png",
-    "24": "./assets/img/icons/time_24.png",
-    "32": "./assets/img/icons/time_32.png",
-    "64": "./assets/img/icons/time_64.png",
-    "128": "./assets/img/icons/time_128.png",
-    "256":"./assets/img/icons/time_256.png"
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
   },
-  "manifest_version": 2,
+  "icons": {
+    "16": "./assets/img/icons/truecost_16.png",
+    "32": "./assets/img/icons/truecost_32.png",
+    "48": "./assets/img/icons/truecost_48.png",
+    "128": "./assets/img/icons/truecost_128.png",
+    "256": "./assets/img/icons/truecost_256.png"
+  },
   "content_scripts": [
     {
       "matches": [
         "https://www.digikala.com/*",
-        "https://www.bamilo.com/*",
-        "https://www.reyhoon.com/*",
-        "https://emalls.ir/*",
         "https://torob.com/*",
-        "https://www.modiseh.com/*",
-        "https://www.digistyle.com/*",
-        "https://www.banimode.com/*",
-        "https://www.shixon.com/*",
+        "https://emalls.ir/*",
+        "https://www.technolife.com/*",
+        "https://technolife.com/*",
+        "https://www.okala.com/*",
+        "https://tapsi.shop/*",
+        "https://snappfood.ir/*",
         "https://bama.ir/*",
-        "https://divar.ir/*",
-        "https://snappfood.ir/*"
+        "https://divar.ir/*"
       ],
       "js": [
-        "./assets/script/bundle.js",
-        "./assets/script/append_view.js"
-      ],"css":[
-      "./assets/style/tooltip.css"
-    ]
+        "./assets/script/digits.js",
+        "./assets/script/calculator.js",
+        "./assets/script/sites-csv.js",
+        "./assets/script/site-adapters.js",
+        "./assets/script/content.js"
+      ],
+      "css": [
+        "./assets/style/tooltip.css"
+      ],
+      "run_at": "document_idle"
     }
   ]
 }

@@ -1,1 +1,28 @@
+# IDE
 .idea
+
+# Dependencies & dev-tool artifacts (not needed to run the plugin)
+node_modules/
+crawl-report.json
+
+# AI / vibe-coding tool artifacts
+.claude/
+CLAUDE.md
+.cursor/
+.cursorrules
+.windsurf/
+.aider*
+.agents/
+AGENTS.md
+COPILOT.md
+.github/copilot-instructions.md
+.gemini/
+Gemini.md
+
+# NOTE — required to run the plugin (never ignore these):
+#   manifest.json      extension manifest (MV3)
+#   popup.html         popup UI
+#   options.html       settings page UI
+#   assets/            scripts, styles, fonts, icons used by the extension
+#   data/              bundled sites.csv + sites-meta.json + wage-dataset.json
+#                      (offline fallback for the collaborative selector/wage data)

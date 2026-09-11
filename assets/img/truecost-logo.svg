@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <filter id="drop-shadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#0F172A" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <!-- Tag String / Loop (Makes it unmistakably a shopping price tag) -->
+  <path d="M 172 138 C 145 110, 110 92, 78 116 C 50 138, 64 182, 102 216"
+        fill="none" stroke="#F59E0B" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" />
+
+  <!-- Main Hanging Price Tag (Rotated slightly for natural, recognizable silhouette) -->
+  <g filter="url(#drop-shadow)">
+    <!-- Tag Body: Classic slanted price tag shape -->
+    <path d="M 160 88
+             L 280 88
+             C 292 88, 304 93, 312 101
+             L 442 231
+             C 458 247, 458 273, 442 289
+             L 339 392
+             C 323 408, 297 408, 281 392
+             L 151 262
+             C 143 254, 138 242, 138 230
+             L 138 110
+             C 138 98, 148 88, 160 88 Z"
+          fill="#1E293B" stroke="#0F172A" stroke-width="6" stroke-linejoin="round" />
+
+    <!-- Tag Eyelet / Hole (Negative white circle with gold rim) -->
+    <circle cx="204" cy="154" r="22" fill="#0F172A" stroke="#F59E0B" stroke-width="6" />
+
+    <!-- Hourglass Container / Icon placed distinctly inside the tag body -->
+    <g transform="translate(295, 260) rotate(45) translate(-60, -85)">
+      <!-- Top Bar of Hourglass -->
+      <rect x="10" y="0" width="100" height="14" rx="7" fill="#F8FAFC" />
+
+      <!-- Bottom Bar of Hourglass -->
+      <rect x="10" y="156" width="100" height="14" rx="7" fill="#F8FAFC" />
+
+      <!-- Glass Bulb Outlines -->
+      <path d="M 22 14
+               L 98 14
+               C 98 52, 74 72, 65 83
+               C 62 86, 60 88, 60 88
+               C 60 88, 58 86, 55 83
+               C 46 72, 22 52, 22 14 Z"
+            fill="none" stroke="#F8FAFC" stroke-width="8" stroke-linejoin="round" />
+
+      <path d="M 22 156
+               L 98 156
+               C 98 118, 74 98, 65 87
+               C 62 84, 60 82, 60 82
+               C 60 82, 58 84, 55 87
+               C 46 98, 22 118, 22 156 Z"
+            fill="none" stroke="#F8FAFC" stroke-width="8" stroke-linejoin="round" />
+
+      <!-- Golden Sand Inside Top Bulb (Draining) -->
+      <path d="M 32 32
+               L 88 32
+               C 84 52, 70 66, 60 76
+               C 50 66, 36 52, 32 32 Z"
+            fill="#F59E0B" />
+
+      <!-- Golden Sand Stream & Droplets -->
+      <line x1="60" y1="78" x2="60" y2="114" stroke="#F59E0B" stroke-width="5" stroke-linecap="round" stroke-dasharray="2 6"/>
+
+      <!-- Golden Sand Inside Bottom Bulb (Accumulating Mount) -->
+      <path d="M 30 152
+               L 90 152
+               C 86 134, 73 120, 60 114
+               C 47 120, 34 134, 30 152 Z"
+            fill="#F59E0B" />
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-09-10T00:00:00Z",
+  "csv_path": "data/sites.csv",
+  "notes_en": "Bump `updated_at` (ISO-8601 UTC) every time data/sites.csv changes and open a pull request. The extension polls this small file weekly (and once right after install) and shows an 'Update available' hint in Settings, without ever silently overwriting a user's already-working selectors - they choose when to apply it.",
+  "notes_fa": "هر بار که data/sites.csv تغییر می‌کند، مقدار updated_at را به‌روزرسانی کرده و Pull Request بزنید. افزونه هر هفته (و یک بار درست پس از نصب) این فایل کوچک را بررسی می‌کند و در صورت وجود تغییر، در صفحه تنظیمات یک هشدار «به‌روزرسانی موجود است» نشان می‌دهد، بدون آنکه هرگز به‌طور خودکار سلکتورهای در حال کار کاربر را بازنویسی کند - خود کاربر زمان اعمال آن را انتخاب می‌کند."
+}

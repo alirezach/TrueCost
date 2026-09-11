@@ -1,0 +1,17 @@
+{
+  "name": "truecost",
+  "version": "3.2.1",
+  "private": true,
+  "description": "True Cost – Chrome Extension",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "crawl": "node scripts/crawl-sites.mjs",
+    "icons": "node scripts/generate-icons.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.63.0",
+    "vitest": "^3.2.1"
+  },
+  "license": "MIT"
+}

@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-09-11",
+  "notes_fa": "این فایل هنگام نصب/بروزرسانی افزونه از روی GitHub خوانده می‌شود تا مقدار پیش‌فرض «دستمزد ساعتی» را پیشنهاد بدهد. برای بروزرسانی مقادیر، این فایل را ویرایش کرده و Pull Request بزنید.",
+  "notes_en": "Fetched by the extension (assets/script/background.js) on install/update to suggest a default hourly wage on first run. To update the figures, edit this file and open a pull request - see CONTRIBUTING.md.",
+  "entries": [
+    {
+      "id": "ir-min-wage-1405",
+      "default": true,
+      "country": "IR",
+      "currency": "Toman",
+      "hourly_wage": 75605,
+      "label_fa": "حداقل دستمزد قانونی ساعتی مصوب شورای عالی کار (سال ۱۴۰۵)",
+      "label_en": "Iran statutory minimum hourly wage (Supreme Labour Council circular, year 1405)",
+      "source_url": "https://d-learn.ir/p/iran-minimum-wage-data/",
+      "source_note_fa": "بر اساس مزد ساعتی رسمی مصوب ۷۵۶,۰۵۰ ریال (معادل ۷۵,۶۰۵ تومان) برای سال ۱۴۰۵ - افزایش ۶۰٪ نسبت به سال ۱۴۰۴. سری زمانی کامل ۱۳۵۸ تا ۱۴۰۵ در منبع موجود است.",
+      "source_note_en": "Derived from the officially published hourly wage of 756,050 IRR (= 75,605 Toman) under the 1405 Supreme Labour Council circular - a 60% increase over the 1404 figure (472,531 IRR). Full 1358-1405 historical series maintained at the source."
+    }
+  ]
+}

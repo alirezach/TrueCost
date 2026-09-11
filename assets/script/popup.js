@@ -1,151 +1,204 @@
 /**
- * @constructor
+ * popup.js – popup controller for the True Cost extension.
+ *
+ * Storage keys (chrome.storage.sync):
+ *   hourly_wages  – hourly wage number (Toman)
+ *   daily_hours   – work hours per day
+ *   daily         – calculation mode: 0 = hours (default), 1 = days, 2 = months
+ *   show_popup    – 1 = floating badge on hover, 0 = inline replacement (default)
+ *   is_active     – 1 = extension active, 0 = paused
  */
-var PopupController = function () {
-    this.hourly_wages = document.getElementById('hourly_wages');
-    this.daily_hours = document.getElementById('daily_hours');
-    this.switch_ = document.getElementById('switch');
-    this.daily_ = document.getElementById('daily');
-    this.show_popup_ = document.getElementById('show_popup');
-    this.addListeners_();
-};
+(function () {
+    'use strict';
 
-/**
- * Comma seperator
- * @param _number
- * @returns {string}
- */
-function SeparateDigit(_number) {
-    var input = _number.toString().replace(/[\D\s\._\-]+/g, "");
-    input = input ? parseInt(input, 10) : 0;
-    return (input === 0) ? "" : input.toLocaleString("en-US");
-}
-
-
-PopupController.prototype = {
-
-    /**
-     *
-     * @private
-     */
-    addListeners_: function () {
-        this.hourly_wages.addEventListener('input', this.handlehourly_wages_.bind(this));
-        this.hourly_wages.addEventListener('change', this.handlehourly_wages_.bind(this));
-        this.daily_hours.addEventListener('input', this.handledaily_hours_.bind(this));
-        this.daily_hours.addEventListener('change', this.handledaily_hours_.bind(this));
-        this.switch_.addEventListener('change', this.handleSwitch_.bind(this));
-        this.daily_.addEventListener('change', this.handleDaily_.bind(this));
-        this.show_popup_.addEventListener('change', this.handle_show_popup_.bind(this));
-        this.hourly_wages.addEventListener('keyup', this.handlehourly_wages_digit.bind(this))
-    },
-
-    handlehourly_wages_digit: function (_el) {
-        var val = _el.srcElement.value;
-        _el.srcElement.value = SeparateDigit(val);
-    },
-    /**
-     *
-     * @private
-     */
-    handlehourly_wages_: function (_el) {
-        chrome.storage.sync.set({hourly_wages: _el.srcElement.value.replace(/[\D\s\._\-]+/g, "")});
-    },
-
-    /**
-     *
-     * @private
-     */
-    handledaily_hours_: function (_el) {
-        chrome.storage.sync.set({daily_hours: _el.srcElement.value});
-    },
-
-    /**
-     *
-     * @private
-     */
-    handleSwitch_: function () {
-        chrome.storage.sync.set({is_active: this.switch_.checked ? 1 : 0});
-    },
-
-    /**
-     *
-     * @private
-     */
-    handleDaily_: function () {
-        chrome.storage.sync.set({daily: this.daily_.checked ? 1 : 0})
-    },
-    /**
-     *
-     * @private
-     */
-    handle_show_popup_: function () {
-        chrome.storage.sync.set({show_popup: this.show_popup_.checked ? 1 : 0})
+    function toEnglishDigits(str) {
+        return String(str)
+            .replace(/۰/g, '0').replace(/۱/g, '1').replace(/۲/g, '2').replace(/۳/g, '3').replace(/۴/g, '4')
+            .replace(/۵/g, '5').replace(/۶/g, '6').replace(/۷/g, '7').replace(/۸/g, '8').replace(/۹/g, '9');
     }
-};
 
-document.addEventListener('DOMContentLoaded', function () {
-    chrome.storage.sync.get(['hourly_wages', 'daily_hours', 'is_active', 'daily', 'show_popup'], function (result) {
+    function separateDigit(value) {
+        var digits = toEnglishDigits(value).replace(/[^\d]/g, '');
+        var n = digits ? parseInt(digits, 10) : 0;
+        return n === 0 ? '' : n.toLocaleString('en-US');
+    }
+
+    function store(patch) {
+        chrome.storage.sync.set(patch);
+    }
+
+    var el = {};
+
+    function setCalcMode(mode) {
+        store({ daily: mode });
+        el.calcMode.querySelectorAll('.seg_btn').forEach(function (btn) {
+            btn.classList.toggle('on', Number(btn.dataset.mode) === mode);
+        });
+    }
+
+    function refreshActiveState(isActive) {
+        el.statusChip.textContent = isActive ? 'فعال' : 'غیرفعال';
+        el.statusChip.classList.toggle('off', !isActive);
+        el.statusBeacon.style.background = isActive ? 'var(--emerald)' : '#64748b';
+        el.statusBeacon.style.boxShadow = isActive ? '0 0 14px rgba(16,185,129,.6)' : 'none';
+        el.beaconPing.style.display = isActive ? 'block' : 'none';
+        el.activeSub.textContent = isActive ? 'آماده جایگزینی قیمت در صفحات' : 'افزونه غیرفعال است';
+    }
+
+    var SUPPORTED_SITES = [
+        'https://torob.com',
+        'https://emalls.ir',
+        'https://www.digikala.com',
+        'https://www.technolife.com',
+        'https://technolife.com',
+        'https://www.okala.com',
+        'https://tapsi.shop',
+        'https://bama.ir',
+        'https://divar.ir',
+        'https://snappfood.ir'
+    ];
+
+    function markCurrentTabSupport() {
+        chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+            var url = tabs && tabs[0] && typeof tabs[0].url === 'string' ? tabs[0].url : '';
+            var supported = SUPPORTED_SITES.some(function (site) { return url.indexOf(site) > -1; });
+            document.getElementById('popup_header').classList.toggle('inactive', !supported);
+            document.getElementById('popup_form').classList.toggle('blurred', !supported);
+            document.getElementById('supported_notice').classList.toggle('active', !supported);
+        });
+    }
+
+    function bindEvents() {
+        // Wage input: keep only digits, pretty-print with thousands separators
+        el.hourlyWages.addEventListener('input', function () {
+            el.hourlyWages.value = separateDigit(el.hourlyWages.value);
+        });
+        el.hourlyWages.addEventListener('change', function () {
+            store({ hourly_wages: toEnglishDigits(el.hourlyWages.value).replace(/[^\d]/g, '') });
+        });
+
+        // Wage preset chips
+        el.form.querySelectorAll('.chip').forEach(function (chip) {
+            chip.addEventListener('click', function () {
+                var wage = chip.dataset.wage;
+                el.hourlyWages.value = separateDigit(wage);
+                store({ hourly_wages: wage });
+            });
+        });
+
+        // Daily hours + steppers
+        el.dailyHours.addEventListener('change', function () {
+            store({ daily_hours: el.dailyHours.value });
+        });
+        document.getElementById('hours_up').addEventListener('click', function () {
+            var v = Math.min(20, (parseInt(el.dailyHours.value, 10) || 8) + 1);
+            el.dailyHours.value = v;
+            store({ daily_hours: v });
+        });
+        document.getElementById('hours_down').addEventListener('click', function () {
+            var v = Math.max(1, (parseInt(el.dailyHours.value, 10) || 8) - 1);
+            el.dailyHours.value = v;
+            store({ daily_hours: v });
+        });
+
+        // Calculation mode segmented control: 0 hour / 1 day / 2 month
+        el.calcMode.querySelectorAll('.seg_btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                setCalcMode(Number(btn.dataset.mode) || 0);
+            });
+        });
+
+        // Toggles
+        el.showPopup.addEventListener('change', function () {
+            store({ show_popup: el.showPopup.checked ? 1 : 0 });
+        });
+        el.switch.addEventListener('change', function () {
+            store({ is_active: el.switch.checked ? 1 : 0 });
+            refreshActiveState(el.switch.checked);
+        });
+
+        // Settings + picker
+        el.openSettings.addEventListener('click', function () {
+            chrome.runtime.openOptionsPage();
+        });
+        el.pickBtn.addEventListener('click', function () {
+            chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+                if (!tabs || !tabs[0] || !tabs[0].id) return;
+                chrome.scripting.executeScript({
+                    target: { tabId: tabs[0].id },
+                    files: ['assets/script/picker.js']
+                }, function () {
+                    el.pickStatus.hidden = false;
+                    if (chrome.runtime.lastError) {
+                        el.pickStatus.textContent = 'خطا: امکان اجرای picker روی این صفحه وجود ندارد';
+                        el.pickStatus.classList.add('error');
+                        return;
+                    }
+                    el.pickStatus.classList.remove('error');
+                    el.pickBtn.classList.add('active');
+                    el.pickStatus.textContent = 'نشانه‌گر فعال شد — یک قیمت را کلیک کنید';
+                });
+            });
+        });
+    }
+
+    function render(result) {
+        // Defaults on first run
         if (result.daily === undefined) {
-            chrome.storage.sync.set({daily: 0});
+            store({ daily: 0 });
         }
         if (result.show_popup === undefined) {
-            chrome.storage.sync.set({show_popup: 1});
+            store({ show_popup: 0 }); // inline mode is the default, not the floating popup
         }
         if (result.hourly_wages === undefined) {
-            chrome.storage.sync.set({hourly_wages: 12000});
-            document.getElementById('hourly_wages').value = SeparateDigit(12000);
-        } else {
-            document.getElementById('hourly_wages').value = SeparateDigit(result.hourly_wages);
+            store({ hourly_wages: 75605 }); // 1405 statutory minimum hourly wage
+            result.hourly_wages = 75605;
         }
-
         if (result.daily_hours === undefined) {
-            chrome.storage.sync.set({daily_hours: 8});
-            document.getElementById('daily_hours').value = 8;
-        } else {
-            document.getElementById('daily_hours').value = result.daily_hours;
+            store({ daily_hours: 8 });
+            result.daily_hours = 8;
+        }
+        if (result.is_active === undefined) {
+            store({ is_active: 1 });
+            result.is_active = 1;
         }
 
-        document.getElementById('switch').checked = result.is_active !== 0;
-        document.getElementById('daily').checked = result.daily === 1;
-        document.getElementById('show_popup').checked = result.show_popup !== 0;
+        el.hourlyWages.value = separateDigit(result.hourly_wages);
+        el.dailyHours.value = result.daily_hours;
+        el.showPopup.checked = Number(result.show_popup) === 1;
+        el.switch.checked = Number(result.is_active) !== 0;
+        setCalcMode(Number(result.daily) || 0);
+        refreshActiveState(Number(result.is_active) !== 0);
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        el = {
+            form: document.getElementById('popup_form'),
+            hourlyWages: document.getElementById('hourly_wages'),
+            dailyHours: document.getElementById('daily_hours'),
+            calcMode: document.getElementById('calc_mode'),
+            showPopup: document.getElementById('show_popup'),
+            switch: document.getElementById('switch'),
+            openSettings: document.getElementById('open_settings_btn'),
+            pickBtn: document.getElementById('pick_price_btn'),
+            pickStatus: document.getElementById('pick_price_status'),
+            statusChip: document.getElementById('status_chip'),
+            statusBeacon: document.getElementById('status_beacon'),
+            beaconPing: document.getElementById('status_beacon_ping'),
+            activeSub: document.getElementById('active_sub')
+        };
+
+        bindEvents();
+
+        try {
+            document.getElementById('version_badge').textContent = 'v' + chrome.runtime.getManifest().version;
+        } catch (e) { /* file:// preview without the extension runtime */ }
+
+        chrome.storage.sync.get(
+            ['hourly_wages', 'daily_hours', 'is_active', 'daily', 'show_popup'],
+            render
+        );
+
+        markCurrentTabSupport();
     });
-    window.PC = new PopupController();
-});
-
-
-chrome.tabs.query({currentWindow: true, active: true}, function (tabs) {
-    var SupportedLifetimeWebsites = [
-        "https://www.bamilo.com",
-        "https://torob.com",
-        "https://emalls.ir",
-        "https://www.reyhoon.com",
-        "https://www.banimode.com",
-        "https://www.digikala.com",
-        "https://www.digistyle.com",
-        "https://www.modiseh.com",
-        "https://www.shixon.com",
-        "https://bama.ir",
-        "https://divar.ir",
-        "https://snappfood.ir"
-    ];
-    var _is_supported = false;
-    for(var i=SupportedLifetimeWebsites.length-1;i>=0;i--){
-        if(tabs[0].url.indexOf(SupportedLifetimeWebsites[i]) > -1){
-            _is_supported = true;
-            break;
-        }
-    }
-
-    //Check current page is supported or no!
-    if(_is_supported){
-        document.querySelector(".header").classList.add("active");
-        document.querySelector("._blank").classList.add("active");
-        document.querySelector(".btn_supported").classList.remove("active");
-        document.querySelector(".input_wrap.form").classList.remove("_blure");
-    } else {
-        document.querySelector(".header").classList.remove("active");
-        document.querySelector("._blank").classList.remove("active");
-        document.querySelector(".btn_supported").classList.add("active");
-        document.querySelector(".input_wrap.form").classList.add("_blure");
-    }
-});
+})();

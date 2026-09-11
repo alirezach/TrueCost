@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="fa">
+<head>
+    <meta charset="UTF-8"/>
+    <title data-i18n="pageTitle">تنظیمات - True Cost</title>
+    <link href="./assets/style/fonts.css" rel="stylesheet">
+    <link href="./assets/style/options.css" rel="stylesheet">
+</head>
+<body>
+<div class="glow glow-cyan"></div>
+<div class="glow glow-amber"></div>
+
+<div class="main">
+
+    <!-- Brand header -->
+    <header class="page_header">
+        <div class="brand_row">
+            <img class="logo" src="./assets/img/truecost-logo.svg" alt="">
+            <div class="brand_col">
+                <span class="brand_name">True Cost</span>
+                <span class="brand_sub" data-i18n="brandTagline">قیمت واقعی = ساعت کار شما</span>
+            </div>
+        </div>
+        <h1 data-i18n="pageHeading">تنظیمات</h1>
+    </header>
+
+    <!-- Language -->
+    <section class="card">
+        <div class="card_head">
+            <span class="card_icon cyan">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            </span>
+            <h2 data-i18n="languageLabel">زبان برنامه</h2>
+        </div>
+        <div class="seg" id="language_seg">
+            <button type="button" class="seg_btn" data-lang="fa" data-i18n="langFa">فارسی</button>
+            <button type="button" class="seg_btn" data-lang="en" data-i18n="langEn">English</button>
+        </div>
+    </section>
+
+    <!-- Currency -->
+    <section class="card">
+        <div class="card_head">
+            <span class="card_icon amber">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            </span>
+            <h2 data-i18n="currencyLabel">واحد نمایش دستمزد</h2>
+        </div>
+        <div class="seg" id="currency_seg">
+            <button type="button" class="seg_btn" data-cur="toman" data-i18n="curToman">تومان</button>
+            <button type="button" class="seg_btn" data-cur="rial" data-i18n="curRial">ریال</button>
+        </div>
+    </section>
+
+    <!-- Wage -->
+    <section class="card">
+        <div class="card_head">
+            <span class="card_icon orange">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/></svg>
+            </span>
+            <h2 data-i18n="wageSectionTitle">دستمزد به ساعت</h2>
+        </div>
+        <div class="wage_field">
+            <label for="hourly_wages_input" data-i18n="wageLabel">دستمزد شما به ساعت</label>
+            <div class="wage_input_wrap">
+                <span class="input_badge">₮</span>
+                <input type="text" id="hourly_wages_input" maxlength="14" autocomplete="off">
+                <span class="unit_badge" id="wage_unit_label" data-i18n="curToman">تومان</span>
+            </div>
+        </div>
+        <p class="hint" id="wage_source_note"></p>
+    </section>
+
+    <!-- Suggested wages -->
+    <section class="card" id="suggested_section" hidden>
+        <div class="card_head">
+            <span class="card_icon emerald">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 4.86 5.36.78-3.88 3.78.92 5.34L12 14.24l-4.8 2.52.92-5.34-3.88-3.78 5.36-.78z"/></svg>
+            </span>
+            <h2 data-i18n="suggestedTitle">دستمزد پیشنهادی</h2>
+        </div>
+        <p class="hint" data-i18n="suggestedHint">بر اساس داده‌های به‌روز، می‌توانید یکی از مقادیر زیر را انتخاب کنید.</p>
+        <div id="suggested_list" class="suggested_list"></div>
+    </section>
+
+    <!-- Manual selectors -->
+    <section class="card" id="custom_adapters_section">
+        <div class="card_head">
+            <span class="card_icon violet">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l7.07 17 2.51-7.39L21 11.07z"/></svg>
+            </span>
+            <h2 data-i18n="customAdaptersTitle">انتخاب‌های دستی قیمت روی سایت‌ها</h2>
+        </div>
+        <p class="hint" id="custom_adapters_empty" data-i18n="customAdaptersEmpty" hidden>هنوز هیچ انتخاب دستی‌ای ثبت نشده است.</p>
+        <div id="custom_adapters_list" class="custom_adapters_list"></div>
+    </section>
+
+    <!-- Site database -->
+    <section class="card" id="site_db_section">
+        <div class="card_head">
+            <span class="card_icon cyan">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+            </span>
+            <h2 data-i18n="siteDbTitle">پایگاه داده سایت‌ها</h2>
+        </div>
+        <p class="hint" id="site_db_status"></p>
+        <div class="update_banner" id="site_db_update_banner" hidden>
+            <span data-i18n="siteDbUpdateHint">نسخه‌ جدیدی از سلکتورهای سایت‌ها روی گیت‌هاب منتشر شده است.</span>
+            <button id="site_db_update_btn" data-i18n="siteDbUpdateButton">به‌روزرسانی هم‌اکنون</button>
+        </div>
+        <p class="hint" id="site_db_update_result"></p>
+        <p class="hint">
+            <a href="https://github.com/alirezach/TrueCost/blob/master/data/sites.csv" target="_blank" rel="noopener" data-i18n="siteDbContribute">مشارکت در بهبود سلکتورها روی گیت‌هاب</a>
+        </p>
+    </section>
+
+    <footer class="page_footer">
+        <a href="https://github.com/alirezach" target="_blank" rel="noopener">
+            <span data-i18n="footerText">ساخته شده با ❤ در Github</span>
+        </a>
+        <span class="version_badge" id="version_badge">v3.2.1</span>
+    </footer>
+
+</div>
+<script src="./assets/script/options.js"></script>
+</body>
+</html>
