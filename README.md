@@ -1,69 +1,103 @@
-# True Cost
+# True Cost (هزینهٔ واقعی)
 
-**True Cost** is a Chrome extension that converts product prices on Iranian online shops into the **hours or days of work** they actually cost you, based on your hourly wage.
+[![CI](https://github.com/alirezach/TrueCost/actions/workflows/ci.yml/badge.svg)](https://github.com/alirezach/TrueCost/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
-افزونه‌ای که قیمت کالاها را بر اساس دستمزد ساعتی شما به «ساعت یا روز کار» تبدیل می‌کند تا **هزینه‌ی واقعی** هر خرید را قبل از خریدن ببینید.
+**قیمت یک عدد اسمی است. هزینهٔ واقعی، زمانی از عمر شماست که برای به‌دست‌آوردنش کار کرده‌اید.**
 
-> نسخه 3.x: افزونه برای **Manifest V3** بازنویسی شد (نسخه‌ی قدیمی Manifest V2 توسط کروم غیرفعال شده است). جزئیات کامل تغییرات و نقشه راه توسعه در [PLAN.md](./PLAN.md) موجود است.
+True Cost کاری ساده اما رادیکال انجام می‌دهد: قیمت هر کالا را — همان‌جا، روی صفحهٔ فروشگاه اینترنتی — بر اساس دستمزد ساعتی شما به «ساعت یا روز کار» تبدیل می‌کند. عددی که روی برچسب قیمت می‌بینید، رابطهٔ شما با پول را پنهان می‌کند؛ اما وقتی همان عدد به «۴ ساعت کار» یا «نصف یک روز کاری» ترجمه شود، رابطهٔ واقعی‌تری بین دستمزد، تورم، و قدرت خریدتان آشکار می‌شود — دقیقاً همان چیزی که در بحث‌های نابرابری اقتصادی و فاصلهٔ روزافزون بین دستمزد اسمی و هزینهٔ زندگی واقعی، معمولاً پنهان می‌ماند. این افزونه ابزار محاسبه نیست؛ ابزار دیدن است.
 
-## Supported sites / سایت‌های پشتیبانی‌شده
+**Price is a nominal number. True cost is the slice of your life you traded to earn it.**
 
-- [digikala.com](https://www.digikala.com)
-- [torob.com](https://torob.com)
-- [emalls.ir](https://emalls.ir)
-- [technolife.com](https://www.technolife.com)
-- [okala.com](https://www.okala.com)
-- [tapsi.shop](https://tapsi.shop)
-- [snappfood.ir](https://snappfood.ir)
-- [bama.ir](https://bama.ir)
-- [divar.ir](https://divar.ir)
+True Cost does something simple but quietly radical: it converts every price you see on Iranian online shops into the hours or days of work it actually costs you, based on your own hourly wage. A price tag hides your real relationship to money — translate it into "4 hours of your life" and that relationship becomes impossible to ignore. Non-Persian speakers are very welcome here too: the detection engine and codebase are written to be currency-agnostic under the hood, and adding support for USD, EUR, GBP and other currencies in a future release is an explicit, tracked goal (see [Roadmap](#نقشه-راه--roadmap) below) — contributions toward that are especially welcome.
 
-Note: support for dead/closed shops (Bamilo, Reyhoon, Digistyle, Modiseh, Shixon, Banimode) has been removed.
+## نصب
 
-## Collaborative site database / پایگاه داده مشارکتی
+فعلاً این افزونه روی Chrome Web Store منتشر نشده است. برای نصب، از صفحهٔ **Releases** استفاده کنید:
 
-CSS selectors for every supported site live in [`data/sites.csv`](https://github.com/alirezach/TrueCost/blob/master/data/sites.csv) — a simple table that anyone can improve:
+1. به صفحهٔ [Releases](https://github.com/alirezach/TrueCost/releases) بروید و آخرین نسخه (فایل `.zip`) را دانلود کنید.
+2. فایل زیپ را از حالت فشرده خارج کنید (Extract).
+3. در کروم به آدرس `chrome://extensions` بروید.
+4. گزینهٔ **Developer mode** (حالت توسعه‌دهنده) را در گوشهٔ بالا-راست فعال کنید.
+5. روی **Load unpacked** کلیک کنید و پوشهٔ استخراج‌شده را انتخاب کنید.
+6. آیکون افزونه را باز کنید، دستمزد ساعتی خود را وارد کنید و از یکی از سایت‌های پشتیبانی‌شده بازدید کنید.
 
-- When a site redesigns and prices stop converting, anyone can open a Pull Request with the new selectors.
-- The extension checks this file weekly (via the tiny [`data/sites-meta.json`](https://github.com/alirezach/TrueCost/blob/master/data/sites-meta.json)) and shows an **"Update available"** hint in Settings — your working selectors are never replaced without your confirmation.
-- The suggested **minimum wage dataset** is also community-maintained in [`data/wage-dataset.json`](https://github.com/alirezach/TrueCost/blob/master/data/wage-dataset.json).
+## سایت‌های پشتیبانی‌شده
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for the column reference and workflow.
+وضعیت هر سایت بر اساس آخرین بررسی مستند در [`SITE_SELECTORS.md`](./SITE_SELECTORS.md):
 
-## Features
+| سایت | وضعیت |
+|---|---|
+| [digikala.com](https://www.digikala.com) | ✅ تأییدشده (سلکتور اختصاصی) |
+| [torob.com](https://torob.com) | ✅ تأییدشده (سلکتور + JSON-LD) |
+| [emalls.ir](https://emalls.ir) | ✅ تأییدشده (سلکتور + JSON-LD) |
+| [divar.ir](https://divar.ir) | ✅ تأییدشده (سلکتور + JSON-LD) |
+| [technolife.com](https://www.technolife.com) | ✅ تأییدشده (سلکتور اختصاصی) |
+| [tapsi.shop](https://tapsi.shop) | ✅ تأییدشده (سلکتور اختصاصی) |
+| [okala.com](https://www.okala.com) | ⚠️ فقط موتور تشخیص عمومی |
+| [bama.ir](https://bama.ir) | ⚠️ تأییدنشده روی صفحات جزئیات آگهی |
+| [snappfood.ir](https://snappfood.ir) | ❌ فعلاً مسدود توسط محافظت ضدربات سایت |
 
-- Manifest V3, no jQuery, no external requests except the wage/selector dataset fetch from GitHub
-- Automatic price detection via per-site selectors, JSON-LD structured data, and a generic currency-word scan
-- **Manual mode**: pick a price element on any site (like browser DevTools) and save it as a personal selector — or send it to the repo as a pre-filled GitHub issue
-- Persian / English UI with self-hosted [Vazirmatn](https://github.com/rastikerdar/vazirmatn) font
-- Toman / Rial currency switch, hourly wage with smart dataset suggestions
+حتی روی سایت‌های بدون سلکتور اختصاصی، یک **موتور تشخیص عمومی** (اسکن داده‌های ساختاریافتهٔ JSON-LD + تشخیص متن قیمت) به‌عنوان شبکهٔ ایمنی همیشه فعال است — همین موتور پایه‌ای است که افزودن واحدهای پولی و سایت‌های غیرایرانی در آینده را ممکن می‌کند.
 
-## Development
+## پایگاه دادهٔ مشارکتی سلکتورها
+
+سلکتورهای CSS هر سایت در فایل [`data/sites.csv`](./data/sites.csv) نگه‌داری می‌شوند — یک جدول ساده که هرکسی می‌تواند بدون دانش جاوااسکریپت آن را ویرایش و Pull Request بفرستد.
+
+- وقتی سایتی بازطراحی می‌شود و تشخیص قیمت از کار می‌افتد، هرکسی می‌تواند سلکتور جدید را در همین فایل اصلاح کند.
+- افزونه هفته‌ای یک‌بار فایل کوچک [`data/sites-meta.json`](./data/sites-meta.json) را چک می‌کند و در صورت وجود به‌روزرسانی، در تنظیمات پیام «به‌روزرسانی موجود است» نمایش می‌دهد — سلکتورهای فعال شما هرگز بدون تأیید خودتان جایگزین نمی‌شوند.
+- دیتاست پیشنهادی حداقل دستمزد هم به همین شکل در [`data/wage-dataset.json`](./data/wage-dataset.json) مشارکتی نگه‌داری می‌شود.
+
+جزئیات ستون‌ها و روند کار در [CONTRIBUTING.md](./CONTRIBUTING.md).
+
+## امکانات
+
+- بدون jQuery، بدون هیچ درخواست شبکه‌ای به‌جز دریافت دیتاست دستمزد/سلکتور از گیت‌هاب
+- تشخیص خودکار قیمت از سه مسیر: سلکتور اختصاصی سایت، داده‌های ساختاریافتهٔ JSON-LD، و اسکن عمومی متن قیمت
+- **حالت دستی**: انتخاب هر عنصر قیمتی روی هر سایتی (شبیه DevTools مرورگر) و ذخیرهٔ آن به‌عنوان سلکتور شخصی — یا ارسال آن به مخزن به‌صورت GitHub Issue آماده
+- رابط کاربری فارسی/انگلیسی
+- سوییچ واحد پول تومان/ریال، دستمزد ساعتی با پیشنهاد هوشمند از دیتاست
+
+## فونت
+
+رابط کاربری این افزونه از فونت زیبا و کاملاً رایگان **[وزیرمتن (Vazirmatn)](https://github.com/rastikerdar/vazirmatn)** استفاده می‌کند؛ اثری از **مرحوم صابر راستی‌کردار** عزیز، که یکی از باکیفیت‌ترین و پرکاربردترین فونت‌های فارسی متن‌باز را برای جامعهٔ فارسی‌زبان به میراث گذاشت. یادش گرامی.
+
+## حریم خصوصی و امنیت
+
+- تمام تنظیمات (دستمزد، زبان، سلکتورهای شخصی) فقط در `chrome.storage.sync` محلی مرورگر شما ذخیره می‌شود.
+- تنها درخواست شبکه‌ای خروجی، دریافت فایل‌های دیتاست/سلکتور از گیت‌هاب است؛ هیچ داده‌ای از شما جمع‌آوری یا ارسال نمی‌شود.
+- جزئیات کامل در [PRIVACY.md](./PRIVACY.md) و [SECURITY.md](./SECURITY.md).
+
+## توسعه
 
 ```bash
 git clone https://github.com/alirezach/TrueCost.git
 cd TrueCost
 npm install
-npm test          # unit tests (vitest)
-npm run crawl     # re-crawl live sites and diff selectors (dev helper)
+npm test          # تست‌های واحد (vitest)
+npm run crawl     # کرال مجدد سایت‌های زنده و مقایسهٔ سلکتورها (ابزار دولوپری)
 ```
 
-Load in Chrome: `chrome://extensions` → enable **Developer mode** → **Load unpacked** → select the repo folder.
+راهنمای کامل مشارکت در [CONTRIBUTING.md](./CONTRIBUTING.md).
 
-## Idea & History / ایده و تاریخچه
+## نقشه راه / Roadmap
 
-Behind every price tag there is a hidden number: **how many hours of your life you have to trade for it**. True Cost surfaces that number — it converts prices into hours or days of work based on your hourly wage, so the real cost of a purchase is visible before you buy.
+- افزودن واحدهای پولی غیرایرانی (دلار، یورو، پوند و...) به موتور تشخیص عمومی، برای استفاده روی فروشگاه‌های غیرایرانی — Adding non-Iranian currencies (USD, EUR, GBP, etc.) to the generic detection engine, so the extension becomes usable on non-Iranian shops too.
+- بومی‌سازی کامل رابط کاربری به انگلیسی (`chrome.i18n`) به‌جای متن‌های ثابت دوزبانه — Full English localization via `chrome.i18n`.
+- پشتیبانی از Firefox و Edge — Firefox/Edge support.
 
-پشت هر برچسب قیمتی یک عدد پنهان وجود دارد: اینکه باید **چند ساعت از زندگیت** را برای آن معامله کنی. True Cost همین عدد را آشکار می‌کند؛ قیمت‌ها را بر اساس دستمزد ساعتی شما به «ساعت یا روز کار» تبدیل می‌کند تا هزینه‌ی واقعی هر خرید را قبل از خریدن ببینید.
+اگر از کشوری غیر از ایران هستید و دوست دارید در توسعهٔ پشتیبانی چندارزی یا بومی‌سازی انگلیسی مشارکت کنید، خوشحال می‌شویم؛ به [CONTRIBUTING.md](./CONTRIBUTING.md) مراجعه کنید.
 
-این پروژه ادامه و بازنویسی یک ایده‌ی قدیمی است:
+## ایده و تاریخچه
 
-- **The original idea**: the *"عمر من" (My Lifetime)* concept — an extension that never shipped — shared publicly by [Javid Izadfar](https://twitter.com/JavidIzadfar). His article (in Persian): [«عمر من»: اکستنشنی که هیچوقت منتشر نمیکنم!](https://virgool.io/@JavidIzadfar/%D8%B9%D9%85%D8%B1-%D9%85%D9%86-%D8%A7%DA%A9%D8%B3%D8%AA%D9%86%D8%B4%D9%86%DB%8C-%DA%A9%D9%87-%D9%87%DB%8C%DA%86%D9%88%D9%82%D8%AA-%D9%85%D9%86%D8%AA%D8%B4%D8%B1-%D9%86%D9%85%DB%8C%DA%A9%D9%86%D9%85-ro0ruevctaio)
+پشت هر برچسب قیمتی یک عدد پنهان وجود دارد: اینکه باید چند ساعت از زندگی‌تان را برای آن معامله کنید. True Cost همین عدد را آشکار می‌کند.
 
-- **The first implementation**: *Iranian Lifetime Calculator* was created in **2018 by [Mahmoud Eskandari](https://github.com/mahmoud-eskandari)** — the idea's first working implementation and the Chrome Web Store release are all his work. Original repository: [mahmoud-eskandari/IPTT](https://github.com/mahmoud-eskandari/IPTT) · [old Chrome Web Store listing](https://chrome.google.com/webstore/detail/iranian-lifetime-calculat/phoehnanhimojcbebjldknajipijlmhd). Early contributions by [Yahya SayadArbabi](https://github.com/TheYahya) (daily-calculation mode) and Hossein Marzban (UI). Mahmoud's article about the extension (in Persian): [اکستنشن کروم تبدیل قیمت به ساعت دستمزد](https://virgool.io/@mahmoudetc/%D8%A7%DA%A9%D8%B3%D8%AA%D9%86%D8%B4%D9%86-%DA%A9%D8%B1%D9%88%D9%85-%D8%AA%D8%A8%D8%AF%DB%8C%D9%84-%D9%82%DB%8C%D9%85%D8%AA-%D8%A8%D9%87-%D8%B3%D8%A7%D8%B9%D8%AA-%D8%AF%D8%B3%D8%AA%D9%85%D8%B2%D8%AF-m2saanql80wb)
+این پروژه ادامه و بازنویسی یک ایدهٔ قدیمی‌تر است:
 
-- **This continuation**: after the original extension stopped working (Manifest V2 deprecation), it was rebuilt from scratch as **True Cost** by [AliRezaCh](https://github.com/alirezach) — previously developed in the [alirezach/IPTT](https://github.com/alirezach/IPTT) repository.
+- **ایدهٔ اصلی**: مفهوم *«عمر من»* — اکستنشنی که هیچ‌وقت منتشر نشد — که توسط [جاوید ایزدفر](https://twitter.com/JavidIzadfar) به‌صورت عمومی مطرح شد. مقالهٔ ایشان: [«عمر من»: اکستنشنی که هیچ‌وقت منتشر نمی‌کنم!](https://virgool.io/@JavidIzadfar/عمر-من-اکستنشنی-که-هیچوقت-منتشر-نمیکنم-ro0ruevctaio)
+- **اولین پیاده‌سازی**: *Iranian Lifetime Calculator*، ساختهٔ **[محمود اسکندری](https://github.com/mahmoud-eskandari)** در سال ۲۰۱۸ — اولین نسخهٔ کارکردی و انتشار آن روی Chrome Web Store کار ایشان بوده. مخزن اصلی: [mahmoud-eskandari/IPTT](https://github.com/mahmoud-eskandari/IPTT). مشارکت‌های اولیه از [یحیی صیادعرب‌آبادی](https://github.com/TheYahya) (حالت محاسبهٔ روزانه) و حسین مرزبان (رابط کاربری).
+- **این ادامه**: پس از از کار افتادن نسخهٔ اصلی، افزونه از صفر بازسازی شد و با نام **True Cost** توسط [AliRezaCh](https://github.com/alirezach) ادامه یافت — پیش‌تر در مخزن [alirezach/IPTT](https://github.com/alirezach/IPTT) توسعه داده می‌شد.
 
-## License
+## مجوز
 
 [MIT](./LICENSE)
