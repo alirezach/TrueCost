@@ -19,10 +19,10 @@
   },
   "action": {
     "default_icon": {
-      "16": "./assets/img/icons/truecost_16.png",
-      "32": "./assets/img/icons/truecost_32.png",
-      "48": "./assets/img/icons/truecost_48.png",
-      "128": "./assets/img/icons/truecost_128.png"
+      "16": "assets/img/icons/truecost_16.png",
+      "32": "assets/img/icons/truecost_32.png",
+      "48": "assets/img/icons/truecost_48.png",
+      "128": "assets/img/icons/truecost_128.png"
     },
     "default_popup": "popup.html"
   },
@@ -31,11 +31,11 @@
     "open_in_tab": true
   },
   "icons": {
-    "16": "./assets/img/icons/truecost_16.png",
-    "32": "./assets/img/icons/truecost_32.png",
-    "48": "./assets/img/icons/truecost_48.png",
-    "128": "./assets/img/icons/truecost_128.png",
-    "256": "./assets/img/icons/truecost_256.png"
+    "16": "assets/img/icons/truecost_16.png",
+    "32": "assets/img/icons/truecost_32.png",
+    "48": "assets/img/icons/truecost_48.png",
+    "128": "assets/img/icons/truecost_128.png",
+    "256": "assets/img/icons/truecost_256.png"
   },
   "content_scripts": [
     {
@@ -58,14 +58,14 @@
         "https://www.shopino.app/*"
       ],
       "js": [
-        "./assets/script/digits.js",
-        "./assets/script/calculator.js",
-        "./assets/script/sites-csv.js",
-        "./assets/script/site-adapters.js",
-        "./assets/script/content.js"
+        "assets/script/digits.js",
+        "assets/script/calculator.js",
+        "assets/script/sites-csv.js",
+        "assets/script/site-adapters.js",
+        "assets/script/content.js"
       ],
       "css": [
-        "./assets/style/tooltip.css"
+        "assets/style/tooltip.css"
       ],
       "run_at": "document_idle"
     }
