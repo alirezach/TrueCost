@@ -14,10 +14,6 @@
     'use strict';
 
     /**
-     * Extracts a positive integer amount out of a raw price string, tolerant of:
-     *  - Persian/Arabic-Indic digits
-     *  - "," "،" "٬" and whitespace as thousands separators
-     *  - stray currency words/symbols mixed into the string
      * @param {string} rawText
      * @returns {number} NaN when nothing usable was found
      */
@@ -38,7 +34,8 @@
      * @param {"Toman"|"Rial"} unit Currency unit the raw price is expressed in.
      * @param {{hourly_wages:number, daily_hours:number, daily:number, language?:string}} options
      *   User settings. `options.daily` selects the display mode: 0 = hours of work (default),
-     *   1 = days of work, 2 = months of work (30 days of `daily_hours`). `options.language`
+     *   1 = days of work (+ leftover real hours), 2 = months of work (30 work-days of
+     *   `daily_hours` each) + leftover days + leftover real hours. `options.language`
      *   ('fa' default, or 'en') controls the output string's language/digits; it does not
      *   affect parsing of the input `priceString`.
      * @returns {string|null} Human readable string, or null when it can't be computed.
@@ -60,27 +57,43 @@
         var fmt = isEnglish ? function (n) { return String(n); } : global.toPersianDigits;
 
         var dailyHours = Number(options && options.daily_hours) || 8;
+        var totalWorkHours = priceInToman / hourlyWage;
+
+        // Splits a fractional count of `dailyHours`-based work-days into whole days plus a
+        // leftover expressed in real (0-23) clock hours, so the leftover never silently rolls
+        // up into an even bigger unit (e.g. months) the way the old buggy formula used to.
+        function splitDaysAndHours(totalWorkDaysFloat) {
+            var days = Math.floor(totalWorkDaysFloat);
+            var remHours = Math.round((totalWorkDaysFloat - days) * 24);
+            if (remHours >= 24) {
+                days += 1;
+                remHours = 0;
+            }
+            return { days: days, hours: remHours };
+        }
 
         if (options.daily === 2) {
-            var months = Math.round((priceInToman / hourlyWage / dailyHours / 30) * 100) / 100;
-            return isEnglish ? fmt(months) + ' months' : fmt(months) + ' ماه';
+            var totalWorkDays = totalWorkHours / dailyHours;
+            var months = Math.floor(totalWorkDays / 30);
+            var split = splitDaysAndHours(totalWorkDays - months * 30);
+            if (split.days >= 30) {
+                months += 1;
+                split.days -= 30;
+            }
+            return isEnglish
+                ? fmt(months) + 'mo ' + fmt(split.days) + 'd ' + fmt(split.hours) + 'h'
+                : fmt(months) + ' ماه و ' + fmt(split.days) + ' روز و ' + fmt(split.hours) + ' ساعت';
         }
 
         if (options.daily === 1) {
-            var days = Math.round((priceInToman / hourlyWage / dailyHours) * 100) / 100;
-            if (days > 30) {
-                var months = Math.floor(days / 30);
-                var remainingDays = Math.round(days % 30);
-                return isEnglish
-                    ? fmt(months) + 'mo ' + fmt(remainingDays) + 'd'
-                    : fmt(months) + ' ماه و ' + fmt(remainingDays) + ' روز';
-            }
-            return isEnglish ? fmt(days) + ' days' : fmt(days) + ' روز';
+            var split = splitDaysAndHours(totalWorkHours / dailyHours);
+            return isEnglish
+                ? fmt(split.days) + 'd ' + fmt(split.hours) + 'h'
+                : fmt(split.days) + ' روز و ' + fmt(split.hours) + ' ساعت';
         }
 
-        var totalHours = priceInToman / hourlyWage;
-        var hours = Math.floor(totalHours);
-        var minutes = Math.round((totalHours - hours) * 60);
+        var hours = Math.floor(totalWorkHours);
+        var minutes = Math.round((totalWorkHours - hours) * 60);
         if (minutes === 60) {
             hours += 1;
             minutes = 0;
