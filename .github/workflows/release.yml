@@ -1,0 +1,68 @@
+name: Release
+
+# Manual-only release: triggered from GitHub Actions tab ("Run workflow" button).
+# Reads the version from manifest.json, builds a Chrome-ready .zip (and .crx when a
+# packaged key is configured), then publishes a GitHub Release with your notes plus
+# an auto-generated changelog of commits since the previous release.
+on:
+  workflow_dispatch:
+    inputs:
+      release_notes:
+        description: 'یادداشت‌های این نسخه (به فارسی یا انگلیسی) — در توضیحات Release ثبت می‌شود'
+        required: true
+      prerelease:
+        description: 'پیش‌نماایش؟ (true/false)'
+        required: false
+        default: 'false'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Read version from manifest.json
+        id: version
+        run: echo "version=$(node -p "require('./manifest.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Run checks
+        run: |
+          npm ci
+          npm test
+
+      - name: Build Chrome zip package
+        run: |
+          mkdir -p dist
+          zip -r "dist/TrueCost-${{ steps.version.outputs.version }}.zip" \
+            manifest.json popup.html options.html assets/ data/ \
+            -x "*/node_modules/*" "*/.DS_Store"
+
+      - name: Build Chrome crx package (needs CHROME_KEY secret)
+        if: ${{ secrets.CHROME_KEY != '' }}
+        run: |
+          printf '%s' "${{ secrets.CHROME_KEY }}" > key.pem
+          npx --yes crx3 "truecost" -p key.pem -o "dist/TrueCost-${{ steps.version.outputs.version }}.crx" || true
+          npx --yes crx pack "truecost" -o "dist/TrueCost-${{ steps.version.outputs.version }}.crx" || true
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: True Cost v${{ steps.version.outputs.version }}
+          body: |
+            ${{ github.event.inputs.release_notes }}
+
+            ---
+            **دانلود:** فایل `TrueCost-${{ steps.version.outputs.version }}.zip` را از بخش Assets بگیرید، از حالت فشرده خارج کنید و مراحل نصب را در README دنبال کنید.
+          files: dist/*
+          prerelease: ${{ github.event.inputs.prerelease }}
+          generate_release_notes: true
+          append_body: true
+          make_latest: true
