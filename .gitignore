@@ -5,6 +5,9 @@
 node_modules/
 crawl-report.json
 
+# Local project plan: intentionally not tracked
+/PLAN.md
+
 # AI / vibe-coding tool artifacts
 .claude/
 CLAUDE.md
