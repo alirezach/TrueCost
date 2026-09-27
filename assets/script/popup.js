@@ -2,11 +2,11 @@
  * popup.js – popup controller for the True Cost extension.
  *
  * Storage keys (chrome.storage.sync):
- *   hourly_wages  – hourly wage number (Toman)
- *   daily_hours   – work hours per day
- *   daily         – calculation mode: 0 = hours (default), 1 = days, 2 = months
- *   show_popup    – 1 = floating badge on hover, 0 = inline replacement (default)
- *   is_active     – 1 = extension active, 0 = paused
+ * hourly_wages – hourly wage number (Toman)
+ * daily_hours – work hours per day
+ * daily – calculation mode: 0 = hours (default), 1 = days, 2 = months
+ * show_popup – 1 = floating badge on hover, 0 = inline replacement (default)
+ * is_active – 1 = extension active, 0 = paused
  */
 (function () {
     'use strict';
@@ -45,7 +45,11 @@
         el.activeSub.textContent = isActive ? 'آماده جایگزینی قیمت در صفحات' : 'افزونه غیرفعال است';
     }
 
-    var SUPPORTED_SITES = [
+    // Sites with a verified adapter in data/sites.csv and a static content_script match in
+    // manifest.json - kept in sync manually with that list. Any OTHER site can still be
+    // activated per-visit/per-origin via the opt-in banner below (chrome.permissions.request),
+    // which never runs without the user explicitly clicking "فعال‌سازی" for that exact site.
+    var KNOWN_SITES = [
         'https://torob.com',
         'https://emalls.ir',
         'https://www.digikala.com',
@@ -55,16 +59,136 @@
         'https://tapsi.shop',
         'https://bama.ir',
         'https://divar.ir',
-        'https://snappfood.ir'
+        'https://snappfood.ir',
+        'https://snappshop.ir',
+        'https://www.snappshop.ir',
+        'https://khodro45.com',
+        'https://www.khodro45.com'
     ];
+
+    var CONTENT_SCRIPT_FILES = [
+        'assets/script/digits.js',
+        'assets/script/calculator.js',
+        'assets/script/sites-csv.js',
+        'assets/script/site-adapters.js',
+        'assets/script/content.js'
+    ];
+    var CONTENT_STYLE_FILES = ['assets/style/tooltip.css'];
+
+    function getOriginPattern(urlStr) {
+        try {
+            var u = new URL(urlStr);
+            if (u.protocol !== 'http:' && u.protocol !== 'https:') {
+                return null;
+            }
+            return u.protocol + '//' + u.hostname + '/*';
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function setUnlockedUi(unlocked) {
+        document.getElementById('popup_header').classList.toggle('inactive', !unlocked);
+        document.getElementById('popup_form').classList.toggle('blurred', !unlocked);
+    }
+
+    function ensureExtraSiteBanner() {
+        var banner = document.getElementById('extra_site_banner');
+        if (banner) {
+            return banner;
+        }
+        banner = document.createElement('div');
+        banner.id = 'extra_site_banner';
+        banner.className = 'btn_supported';
+        banner.innerHTML =
+            '<span id="extra_site_banner_text">این سایت در فهرست رسمی نیست. برای فعال‌سازی آزمایشی روی همین سایت، مرورگر یک مجوز دسترسی فقط برای همین دامنه از شما می‌پرسد.</span>' +
+            '<button id="extra_site_enable_btn" type="button" class="chip">فعال‌سازی روی این سایت</button>';
+        var header = document.getElementById('popup_header');
+        header.insertAdjacentElement('afterend', banner);
+        return banner;
+    }
+
+    function showExtraSiteBanner(originPattern, tabId) {
+        var banner = ensureExtraSiteBanner();
+        var textEl = document.getElementById('extra_site_banner_text');
+        var btn = document.getElementById('extra_site_enable_btn');
+        textEl.textContent = 'این سایت در فهرست رسمی نیست. برای فعال‌سازی آزمایشی روی همین سایت، مرورگر یک مجوز دسترسی فقط برای همین دامنه از شما می‌پرسد.';
+        btn.disabled = false;
+        btn.textContent = 'فعال‌سازی روی این سایت';
+        btn.onclick = function () {
+            btn.disabled = true;
+            btn.textContent = 'در حال درخواست مجوز…';
+            chrome.permissions.request({ origins: [originPattern] }, function (granted) {
+                if (chrome.runtime.lastError || !granted) {
+                    btn.disabled = false;
+                    btn.textContent = 'فعال‌سازی روی این سایت';
+                    textEl.textContent = 'مجوز داده نشد. بدون آن، افزونه فقط روی سایت‌های فهرست رسمی فعال می‌ماند.';
+                    return;
+                }
+                chrome.scripting.executeScript({
+                    target: { tabId: tabId },
+                    files: CONTENT_SCRIPT_FILES
+                }, function () {
+                    chrome.scripting.insertCSS({ target: { tabId: tabId }, files: CONTENT_STYLE_FILES }, function () { /* best-effort */ });
+                    // Persist activation for future page loads/tabs on this origin without
+                    // requiring the user to click the button again every time.
+                    try {
+                        chrome.scripting.registerContentScripts([{
+                            id: 'tc-dynamic-' + originPattern,
+                            matches: [originPattern],
+                            js: CONTENT_SCRIPT_FILES,
+                            css: CONTENT_STYLE_FILES,
+                            runAt: 'document_idle'
+                        }], function () { /* ignore "already registered" errors on repeat grants */ chrome.runtime.lastError; });
+                    } catch (e) { /* registerContentScripts unavailable in older Chrome - the current tab still works via executeScript above */ }
+                    banner.classList.remove('active');
+                    setUnlockedUi(true);
+                });
+            });
+        };
+        banner.classList.add('active');
+    }
+
+    function hideExtraSiteBanner() {
+        var banner = document.getElementById('extra_site_banner');
+        if (banner) {
+            banner.classList.remove('active');
+        }
+    }
 
     function markCurrentTabSupport() {
         chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
-            var url = tabs && tabs[0] && typeof tabs[0].url === 'string' ? tabs[0].url : '';
-            var supported = SUPPORTED_SITES.some(function (site) { return url.indexOf(site) > -1; });
-            document.getElementById('popup_header').classList.toggle('inactive', !supported);
-            document.getElementById('popup_form').classList.toggle('blurred', !supported);
-            document.getElementById('supported_notice').classList.toggle('active', !supported);
+            var tab = tabs && tabs[0];
+            var url = tab && typeof tab.url === 'string' ? tab.url : '';
+            var supported = KNOWN_SITES.some(function (site) { return url.indexOf(site) > -1; });
+
+            if (supported) {
+                document.getElementById('supported_notice').classList.remove('active');
+                hideExtraSiteBanner();
+                setUnlockedUi(true);
+                return;
+            }
+
+            var originPattern = getOriginPattern(url);
+            if (!originPattern || !tab || !tab.id) {
+                // Non-http(s) pages (chrome://, file://, the Web Store, etc.) - nothing to activate.
+                document.getElementById('supported_notice').classList.add('active');
+                hideExtraSiteBanner();
+                setUnlockedUi(false);
+                return;
+            }
+
+            document.getElementById('supported_notice').classList.remove('active');
+
+            chrome.permissions.contains({ origins: [originPattern] }, function (alreadyGranted) {
+                if (alreadyGranted) {
+                    hideExtraSiteBanner();
+                    setUnlockedUi(true);
+                } else {
+                    setUnlockedUi(false);
+                    showExtraSiteBanner(originPattern, tab.id);
+                }
+            });
         });
     }
 
