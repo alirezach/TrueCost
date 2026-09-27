@@ -250,19 +250,75 @@
         el.pickBtn.addEventListener('click', function () {
             chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
                 if (!tabs || !tabs[0] || !tabs[0].id) return;
-                chrome.scripting.executeScript({
-                    target: { tabId: tabs[0].id },
-                    files: ['assets/script/picker.js']
-                }, function () {
-                    el.pickStatus.hidden = false;
-                    if (chrome.runtime.lastError) {
-                        el.pickStatus.textContent = 'خطا: امکان اجرای picker روی این صفحه وجود ندارد';
-                        el.pickStatus.classList.add('error');
+                var tab = tabs[0];
+                var originPattern = tab.url ? getOriginPattern(tab.url) : null;
+
+                el.pickStatus.hidden = false;
+
+                function injectPicker() {
+                    chrome.scripting.executeScript({
+                        target: { tabId: tab.id },
+                        files: ['assets/script/picker.js']
+                    }, function () {
+                        if (chrome.runtime.lastError) {
+                            el.pickStatus.textContent = 'خطا: امکان اجرای picker روی این صفحه وجود ندارد';
+                            el.pickStatus.classList.add('error');
+                            return;
+                        }
+                        el.pickStatus.classList.remove('error');
+                        el.pickBtn.classList.add('active');
+                        el.pickStatus.textContent = 'نشانه‌گر فعال شد — یک قیمت را کلیک کنید';
+                    });
+                }
+
+                function injectEngineAndPicker() {
+                    chrome.scripting.executeScript({
+                        target: { tabId: tab.id },
+                        files: CONTENT_SCRIPT_FILES
+                    }, function () {
+                        if (chrome.runtime.lastError) {
+                            el.pickStatus.textContent = 'خطا: امکان فعال‌سازی موتور روی این صفحه وجود ندارد';
+                            el.pickStatus.classList.add('error');
+                            return;
+                        }
+                        chrome.scripting.insertCSS({ target: { tabId: tab.id }, files: CONTENT_STYLE_FILES }, function () { /* best-effort */ });
+                        injectPicker();
+                    });
+                }
+
+                if (!originPattern) {
+                    el.pickStatus.textContent = 'خطا: امکان اجرای picker روی این صفحه وجود ندارد';
+                    el.pickStatus.classList.add('error');
+                    return;
+                }
+
+                chrome.permissions.contains({ origins: [originPattern] }, function (granted) {
+                    if (granted) {
+                        // Host permission already exists (listed site or previously activated) -
+                        // engine is either already running or can be safely injected now so the
+                        // selector the user is about to save takes effect without a reload.
+                        injectEngineAndPicker();
                         return;
                     }
-                    el.pickStatus.classList.remove('error');
-                    el.pickBtn.classList.add('active');
-                    el.pickStatus.textContent = 'نشانه‌گر فعال شد — یک قیمت را کلیک کنید';
+                    // Not granted yet: ask for this exact origin, then inject engine + picker.
+                    chrome.permissions.request({ origins: [originPattern] }, function (nowGranted) {
+                        if (chrome.runtime.lastError || !nowGranted) {
+                            el.pickStatus.textContent = 'بدون تأیید دسترسی، انتخابگر فقط در حالت پیش‌نمایش کار می‌کند و ذخیره نمی‌شود.';
+                            el.pickStatus.classList.add('error');
+                            return;
+                        }
+                        // Persist engine for future visits on this origin.
+                        try {
+                            chrome.scripting.registerContentScripts([{
+                                id: 'tc-dynamic-' + originPattern,
+                                matches: [originPattern],
+                                js: CONTENT_SCRIPT_FILES,
+                                css: CONTENT_STYLE_FILES,
+                                runAt: 'document_idle'
+                            }], function () { chrome.runtime.lastError; });
+                        } catch (e) { /* older Chrome without registerContentScripts */ }
+                        injectEngineAndPicker();
+                    });
                 });
             });
         });
