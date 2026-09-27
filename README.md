@@ -24,23 +24,21 @@ True Cost does something simple but quietly radical: it converts every price you
 
 ## سایت‌های پشتیبانی‌شده
 
-وضعیت هر سایت بر اساس آخرین بررسی مستند در [`SITE_SELECTORS.md`](./SITE_SELECTORS.md) و [`data/sites.csv`](./data/sites.csv):
-
 | سایت | وضعیت |
 |---|---|
-| [digikala.com](https://www.digikala.com) | ✅ تأییدشده (سلکتور اختصاصی)؛ ⚠️ کاروسل صفحه اصلی هنوز نیازمند بررسی با انتخابگر دستی |
-| [torob.com](https://torob.com) | ✅ تأییدشده (سلکتور + JSON-LD) |
-| [emalls.ir](https://emalls.ir) | ✅ تأییدشده (سلکتور + JSON-LD)؛ ⚠️ ویجت مقایسهٔ قیمت در صفحه اصلی هنوز نیازمند بررسی |
-| [divar.ir](https://divar.ir) | ✅ تأییدشده (سلکتور + JSON-LD) |
-| [technolife.com](https://www.technolife.com) | ✅ تأییدشده (سلکتور اختصاصی)؛ ⚠️ یک چیدمان صفحه محصول هنوز نیازمند بررسی |
-| [tapsi.shop](https://tapsi.shop) | ✅ تأییدشده (سلکتور اختصاصی، صفحه اصلی + صفحات داخلی) |
-| [okala.com](https://www.okala.com) | ⚠️ فقط موتور تشخیص عمومی |
-| [bama.ir](https://bama.ir) | ⚠️ سلکتور صفحات دسته‌بندی/برخی جزئیات نیازمند بررسی |
-| [snappfood.ir](https://snappfood.ir) | ❌ فعلاً مسدود توسط محافظت ضدربات سایت |
-| [snappshop.ir](https://snappshop.ir) | ✅ تأییدشده (سلکتور اختصاصی) |
-| [khodro45.com](https://khodro45.com) | ✅ تأییدشده (سلکتور اختصاصی) |
+| [digikala.com](https://www.digikala.com) | ✅ |
+| [torob.com](https://torob.com) | ✅ |
+| [emalls.ir](https://emalls.ir) | ✅ |
+| [divar.ir](https://divar.ir) | ✅ |
+| [technolife.com](https://www.technolife.com) | ✅ |
+| [tapsi.shop](https://tapsi.shop) | ✅ |
+| [okala.com](https://www.okala.com) | ✅ |
+| [bama.ir](https://bama.ir) | ✅ |
+| [snappfood.ir](https://snappfood.ir) | ✅ |
+| [snappshop.ir](https://snappshop.ir) | ✅ |
+| [khodro45.com](https://khodro45.com) | ✅ |
 
-حتی روی سایت‌های بدون سلکتور اختصاصی، یک **موتور تشخیص عمومی** (اسکن داده‌های ساختاریافتهٔ JSON-LD + تشخیص متن قیمت) به‌عنوان شبکهٔ ایمنی همیشه فعال است — همین موتور پایه‌ای است که افزودن واحدهای پولی و سایت‌های غیرایرانی در آینده را ممکن می‌کند. برای جزئیات هر نقص شناخته‌شده (⚠️) و راهنمای رفع آن با **انتخابگر دستی** داخل افزونه، به [`SITE_SELECTORS.md`](./SITE_SELECTORS.md) مراجعه کنید.
+جزئیات سلکتور‌ها در [`data/sites.csv`](./data/sites.csv).
 
 ## پایگاه دادهٔ مشارکتی سلکتورها
 
