@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "True Cost",
-  "version": "3.4.0",
+  "version": "3.4.1",
   "description": "Convert prices on Iranian shopping sites into hours or days of work based on your wage. See the true cost before you buy.",
   "short_name": "TrueCost",
   "permissions": [
@@ -53,7 +53,9 @@
         "https://snappshop.ir/*",
         "https://www.snappshop.ir/*",
         "https://khodro45.com/*",
-        "https://www.khodro45.com/*"
+        "https://www.khodro45.com/*",
+        "https://shopino.app/*",
+        "https://www.shopino.app/*"
       ],
       "js": [
         "./assets/script/digits.js",
