@@ -1,19 +1,27 @@
 name: Release
 
 # Manual-only release: triggered from GitHub Actions tab ("Run workflow" button).
-# Reads the version from manifest.json, builds a Chrome-ready .zip (and .crx when a
-# packaged key is configured), then publishes a GitHub Release with your notes plus
-# an auto-generated changelog of commits since the previous release.
+# 1) Picks the version bump level (patch/minor/major) or keeps manifest.json as-is,
+#    then bumps manifest.json and commits it back to the default branch.
+# 2) Builds a Chrome-ready .zip (and .crx when the CHROME_KEY secret is configured).
+# 3) Publishes a GitHub Release whose notes are your optional input plus an
+#    auto-generated changelog of everything merged since the previous release.
 on:
   workflow_dispatch:
     inputs:
-      release_notes:
-        description: 'یادداشت‌های این نسخه (به فارسی یا انگلیسی) — در توضیحات Release ثبت می‌شود'
+      version_bump:
+        description: 'سطح بالارفتن نسخه — آخرین نسخهٔ فعلی در manifest.json خوانده می‌شود و یک پله بالا می‌رود'
         required: true
-      prerelease:
-        description: 'پیش‌نماایش؟ (true/false)'
+        type: choice
+        options:
+          - patch (مثلاً 3.4.1 → 3.4.2 — رفع باگ/تغییرات کوچک)
+          - minor (مثلاً 3.4.1 → 3.5.0 — قابلیت جدید)
+          - major (مثلاً 3.4.1 → 4.0.0 — تغییر سازگارشکننده)
+          - current (بدون بالابردن — از همان نسخهٔ موجود در manifest.json استفاده کن)
+        default: 'patch (مثلاً 3.4.1 → 3.4.2 — رفع باگ/تغییرات کوچک)'
+      release_notes:
+        description: 'یادداشت دلخوه برای این نسخه (اختیاری — اگر خالی بماند، توضیحات فقط از کامیت‌ها ساخته می‌شود)'
         required: false
-        default: 'false'
 
 permissions:
   contents: write
@@ -21,16 +29,37 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    # secrets is not readable inside step `if:` — expose it as a job-level env var instead.
+    env:
+      HAS_CHROME_KEY: ${{ secrets.CHROME_KEY }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # full history needed to diff against the previous release tag
 
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
 
-      - name: Read version from manifest.json
+      - name: Bump version in manifest.json and commit it back
         id: version
-        run: echo "version=$(node -p "require('./manifest.json').version")" >> "$GITHUB_OUTPUT"
+        run: |
+          BUMP="${{ github.event.inputs.version_bump }}"
+          CURRENT=$(node -p "require('./manifest.json').version")
+          if [[ "$BUMP" == current* ]]; then
+            NEW="$CURRENT"
+          else
+            LEVEL=$(echo "$BUMP" | cut -d' ' -f1)
+            NEW=$(node -e "const v='$CURRENT'.split('.').map(Number); if('$LEVEL'==='patch') v[2]++; else if('$LEVEL'==='minor') { v[1]++; v[2]=0; } else if('$LEVEL'==='major') { v[0]++; v[1]=0; v[2]=0; } console.log(v.join('.'))")
+            node -e "const fs=require('fs'); const m=JSON.parse(fs.readFileSync('manifest.json','utf8')); m.version='$NEW'; fs.writeFileSync('manifest.json', JSON.stringify(m,null,2)+'\n')"
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add manifest.json
+            git commit -m "chore: bump version to $NEW [skip ci]"
+            git push
+          fi
+          echo "Old version: $CURRENT, new version: $NEW"
+          echo "version=$NEW" >> "$GITHUB_OUTPUT"
 
       - name: Run checks
         run: |
@@ -44,12 +73,31 @@ jobs:
             manifest.json popup.html options.html assets/ data/ \
             -x "*/node_modules/*" "*/.DS_Store"
 
-      - name: Build Chrome crx package (needs CHROME_KEY secret)
-        if: ${{ secrets.CHROME_KEY != '' }}
+      - name: Build Chrome crx package (only when the CHROME_KEY secret is set)
+        if: ${{ env.HAS_CHROME_KEY != '' }}
         run: |
-          printf '%s' "${{ secrets.CHROME_KEY }}" > key.pem
-          npx --yes crx3 "truecost" -p key.pem -o "dist/TrueCost-${{ steps.version.outputs.version }}.crx" || true
-          npx --yes crx pack "truecost" -o "dist/TrueCost-${{ steps.version.outputs.version }}.crx" || true
+          printf '%s' "$HAS_CHROME_KEY" > key.pem
+          npx --yes crx pack --zip-output "dist/TrueCost-${{ steps.version.outputs.version }}.zip" -p key.pem -o "dist/TrueCost-${{ steps.version.outputs.version }}.crx" || true
+
+      - name: Build release notes from commits since the previous release
+        id: notes
+        run: |
+          PrevTag=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          {
+            echo "NOTES<<EOF"
+            if [ -n "${{ github.event.inputs.release_notes }}" ]; then
+              echo "${{ github.event.inputs.release_notes }}"
+              echo ""
+            fi
+            if [ -n "$PrevTag" ]; then
+              echo "## تغییرات نسبت به نسخهٔ قبلی ($PrevTag)"
+              git log "$PrevTag"..HEAD --pretty=format:"- %s" --no-merges
+            else
+              echo "## تغییرات"
+              git log --pretty=format:"- %s" --no-merges -n 20
+            fi
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -57,12 +105,10 @@ jobs:
           tag_name: v${{ steps.version.outputs.version }}
           name: True Cost v${{ steps.version.outputs.version }}
           body: |
-            ${{ github.event.inputs.release_notes }}
+            ${{ steps.notes.outputs.NOTES }}
 
             ---
             **دانلود:** فایل `TrueCost-${{ steps.version.outputs.version }}.zip` را از بخش Assets بگیرید، از حالت فشرده خارج کنید و مراحل نصب را در README دنبال کنید.
           files: dist/*
-          prerelease: ${{ github.event.inputs.prerelease }}
-          generate_release_notes: true
-          append_body: true
+          prerelease: ${{ github.event.inputs.prerelease == 'true' }}
           make_latest: true
