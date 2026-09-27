@@ -63,7 +63,9 @@
         'https://snappshop.ir',
         'https://www.snappshop.ir',
         'https://khodro45.com',
-        'https://www.khodro45.com'
+        'https://www.khodro45.com',
+        'https://shopino.app',
+        'https://www.shopino.app'
     ];
 
     var CONTENT_SCRIPT_FILES = [
