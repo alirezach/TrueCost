@@ -78,10 +78,18 @@ jobs:
           cp -R assets data package/
           node - <<'NODE'
           const fs = require('fs');
-          const path = 'package/manifest.json';
-          const manifest = JSON.parse(fs.readFileSync(path, 'utf8'));
+          const file = 'package/manifest.json';
+          const manifest = JSON.parse(fs.readFileSync(file, 'utf8'));
           manifest.version = process.env.VERSION;
-          fs.writeFileSync(path, JSON.stringify(manifest, null, 2) + '\n');
+          for (const icons of [manifest.icons, manifest.action?.default_icon]) {
+            if (!icons) continue;
+            if (typeof icons === 'string') throw new Error('Expected size-keyed icon paths');
+            for (const size of Object.keys(icons)) {
+              if (typeof icons[size] !== 'string') throw new Error(`Invalid icon path for ${size}`);
+              icons[size] = icons[size].replace(/^\.\//, '');
+            }
+          }
+          fs.writeFileSync(file, JSON.stringify(manifest, null, 2) + '\n');
           NODE
           test -f package/manifest.json
           test -f package/assets/script/content.js
@@ -92,12 +100,45 @@ jobs:
           fi
           (cd package && zip -q -r "../dist/TrueCost-${VERSION}-chrome.zip" .)
           unzip -tqq "dist/TrueCost-${VERSION}-chrome.zip"
-          unzip -Z -1 "dist/TrueCost-${VERSION}-chrome.zip" | grep -qx 'manifest.json'
           if unzip -Z -1 "dist/TrueCost-${VERSION}-chrome.zip" | grep -E '(^|/)(\.git|\.github|node_modules|tests|scripts)(/|$)|\.(md|markdown)$|(^|/)(package(-lock)?\.json|\.gitignore)$'; then
             echo "Unexpected non-runtime file in ZIP" >&2
             exit 1
           fi
-          echo "Package contents:"
+
+      - name: Validate the uploaded ZIP's manifest and icons
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const { execFileSync } = require('child_process');
+          const assert = require('assert/strict');
+          const zip = `dist/TrueCost-${process.env.VERSION}-chrome.zip`;
+          const entries = new Set(execFileSync('unzip', ['-Z', '-1', zip], { encoding: 'utf8' }).trim().split('\n'));
+          assert(entries.has('manifest.json'), 'manifest.json must be at the ZIP root');
+          const fromZip = name => execFileSync('unzip', ['-p', zip, name]);
+          const manifest = JSON.parse(fromZip('manifest.json').toString('utf8'));
+          assert.equal(manifest.version, process.env.VERSION);
+          for (const name of ['popup.html', 'options.html', 'assets/script/content.js', 'data/sites.csv']) {
+            assert(entries.has(name), `Missing runtime file in ZIP: ${name}`);
+          }
+          for (const [group, icons] of Object.entries({ icons: manifest.icons, action: manifest.action?.default_icon })) {
+            assert(icons && typeof icons === 'object' && !Array.isArray(icons), `Missing ${group} icon map`);
+            for (const [size, name] of Object.entries(icons)) {
+              assert(typeof name === 'string' && !name.startsWith('./') && !name.startsWith('/') && !name.includes('..'), `Invalid ${group} icon path: ${name}`);
+              assert(entries.has(name), `Missing ${group} icon in ZIP: ${name}`);
+              const png = fromZip(name);
+              assert(png.subarray(0, 8).equals(Buffer.from('89504e470d0a1a0a', 'hex')), `Not a PNG: ${name}`);
+              assert.equal(png.readUInt32BE(16), Number(size), `Wrong icon width: ${name}`);
+              assert.equal(png.readUInt32BE(20), Number(size), `Wrong icon height: ${name}`);
+              console.log(`Verified ${group} icon ${size}: ${name}`);
+            }
+          }
+          for (const size of ['16', '32', '48', '128']) {
+            assert(manifest.icons[size] && manifest.action.default_icon[size], `Missing required icon size: ${size}`);
+          }
+          NODE
+          echo 'Verified ZIP entries:'
           unzip -Z -1 "dist/TrueCost-${VERSION}-chrome.zip"
 
       - name: Build optional CRX from the same clean directory
