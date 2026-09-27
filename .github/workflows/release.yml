@@ -83,8 +83,8 @@ jobs:
         id: notes
         run: |
           PrevTag=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          NOTES_FILE=$(mktemp)
           {
-            echo "NOTES<<EOF"
             if [ -n "${{ github.event.inputs.release_notes }}" ]; then
               echo "${{ github.event.inputs.release_notes }}"
               echo ""
@@ -92,12 +92,17 @@ jobs:
             if [ -n "$PrevTag" ]; then
               echo "## تغییرات نسبت به نسخهٔ قبلی ($PrevTag)"
               git log "$PrevTag"..HEAD --pretty=format:"- %s" --no-merges
+              echo ""
             else
               echo "## تغییرات"
               git log --pretty=format:"- %s" --no-merges -n 20
+              echo ""
             fi
-            echo "EOF"
-          } >> "$GITHUB_OUTPUT"
+          } > "$NOTES_FILE"
+          echo "notes<<TC_NOTES_EOF" >> "$GITHUB_OUTPUT"
+          cat "$NOTES_FILE" >> "$GITHUB_OUTPUT"
+          echo "TC_NOTES_EOF" >> "$GITHUB_OUTPUT"
+          rm -f "$NOTES_FILE"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -105,10 +110,9 @@ jobs:
           tag_name: v${{ steps.version.outputs.version }}
           name: True Cost v${{ steps.version.outputs.version }}
           body: |
-            ${{ steps.notes.outputs.NOTES }}
+            ${{ steps.notes.outputs.notes }}
 
             ---
             **دانلود:** فایل `TrueCost-${{ steps.version.outputs.version }}.zip` را از بخش Assets بگیرید، از حالت فشرده خارج کنید و مراحل نصب را در README دنبال کنید.
           files: dist/*
-          prerelease: ${{ github.event.inputs.prerelease == 'true' }}
           make_latest: true
