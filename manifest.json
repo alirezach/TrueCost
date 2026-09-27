@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "True Cost",
-  "version": "3.4.2",
+  "version": "2.0.0",
   "description": "Convert prices on Iranian shopping sites into hours or days of work based on your wage. See the true cost before you buy.",
   "short_name": "TrueCost",
   "permissions": [
