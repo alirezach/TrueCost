@@ -22,35 +22,37 @@
  *     once, on first install, and only if genuinely unset.
  *
  * If this repository is ever renamed or moved, update this URL:
- *   https://raw.githubusercontent.com/alirezach/TrueCost/master/data/wage-dataset.json
- * (owner: alirezach, repo: TrueCost, branch: master, path: data/wage-dataset.json)
+ *   https://raw.githubusercontent.com/alirezach/TrueCost/main/data/wage-dataset.json
+ * (owner: alirezach, repo: TrueCost, branch: main, path: data/wage-dataset.json)
  *
  * This file ALSO manages the collaborative site-selector database
  * (data/sites.csv - see sites-csv.js and CONTRIBUTING.md):
  *   - On install: fetch data/sites.csv fresh from GitHub and cache it as the
  *     ACTIVE selector set (`site_adapters_cache`), falling back to the
  *     bundled copy on any network failure - same pattern as the wage dataset.
- *   - Weekly (and never more eagerly): fetch only the tiny data/sites-meta.json
- *     file and compare its `updated_at` against the cached copy's. If newer,
- *     set `site_adapters_update_available` so the Settings page can show a
- *     hint - the active cache is NEVER silently overwritten; the user has to
- *     click "Update now" in Settings for that, so a site's live selectors
+ *   - Right after install, on every browser startup, and weekly in between:
+ *     fetch only the tiny data/sites-meta.json file and compare its
+ *     `updated_at` against the cached copy's. If newer, set
+ *     `site_adapters_update_available` so the Settings page can show a hint;
+ *     if NOT newer, actively clear that flag so a stale hint can never keep
+ *     nagging. The active cache is NEVER silently overwritten; the user has
+ *     to click "Update now" in Settings for that, so a site's live selectors
  *     never change out from under them without consent.
  */
 
 importScripts('sites-csv.js');
 
 const REMOTE_DATASET_URL =
-  'https://raw.githubusercontent.com/alirezach/TrueCost/master/data/wage-dataset.json';
+  'https://raw.githubusercontent.com/alirezach/TrueCost/main/data/wage-dataset.json';
 const BUNDLED_DATASET_PATH = 'data/wage-dataset.json';
 const FETCH_TIMEOUT_MS = 5000;
 const REFRESH_ALARM_NAME = 'tc-wage-dataset-refresh';
 const REFRESH_PERIOD_MINUTES = 60 * 24 * 7; // roughly weekly
 
 const REMOTE_SITES_CSV_URL =
-  'https://raw.githubusercontent.com/alirezach/TrueCost/master/data/sites.csv';
+  'https://raw.githubusercontent.com/alirezach/TrueCost/main/data/sites.csv';
 const REMOTE_SITES_META_URL =
-  'https://raw.githubusercontent.com/alirezach/TrueCost/master/data/sites-meta.json';
+  'https://raw.githubusercontent.com/alirezach/TrueCost/main/data/sites-meta.json';
 const BUNDLED_SITES_CSV_PATH = 'data/sites.csv';
 const BUNDLED_SITES_META_PATH = 'data/sites-meta.json';
 const SITES_CHECK_ALARM_NAME = 'tc-site-adapters-check';
@@ -249,10 +251,14 @@ async function initializeSiteAdaptersCache() {
 }
 
 /**
- * Lightweight weekly check: fetches ONLY data/sites-meta.json (a few bytes)
- * and compares its `updated_at` against the currently active cache. Never
- * overwrites the active cache itself - only sets a flag so Settings can show
- * an "Update available" hint with a button the user can click when ready.
+ * Lightweight version check: fetches ONLY data/sites-meta.json (a few bytes)
+ * and compares its `updated_at` against the currently active cache. Runs right
+ * after install, on browser startup, and on the weekly alarm. Never overwrites
+ * the active cache itself - when the repo is genuinely newer it only sets a
+ * flag so Settings can show an "Update available" hint with a button the user
+ * can click when ready. When the repo is NOT newer, any previously set flag is
+ * actively cleared, so a stale hint (e.g. left behind by an older build, or
+ * after the repo state changed) can never keep nagging the user.
  */
 async function checkForSiteAdaptersUpdate() {
   try {
@@ -261,10 +267,18 @@ async function checkForSiteAdaptersUpdate() {
 
     const meta = await fetchRemoteSitesMeta();
     const remoteUpdatedAt = meta && meta.updated_at;
-    if (remoteUpdatedAt && (!currentUpdatedAt || new Date(remoteUpdatedAt) > new Date(currentUpdatedAt))) {
+    const remoteTime = remoteUpdatedAt ? Date.parse(remoteUpdatedAt) : NaN;
+    const currentTime = currentUpdatedAt ? Date.parse(currentUpdatedAt) : NaN;
+
+    if (!isNaN(remoteTime) && (isNaN(currentTime) || remoteTime > currentTime)) {
       await chrome.storage.local.set({
         site_adapters_update_available: true,
         site_adapters_latest_updated_at: remoteUpdatedAt,
+      });
+    } else {
+      await chrome.storage.local.set({
+        site_adapters_update_available: false,
+        site_adapters_latest_updated_at: null,
       });
     }
   } catch (error) {
@@ -286,6 +300,15 @@ async function handleInstalled(details) {
     await initializeSiteAdaptersCache();
   } catch (error) {
     console.error('TrueCost: failed to initialize site adapters cache', error);
+  }
+
+  try {
+    // One immediate version check right after install (the weekly alarm only
+    // fires days later): if the bundled copy was used and the repo is newer,
+    // the user hears about it now, not next week.
+    await checkForSiteAdaptersUpdate();
+  } catch (error) {
+    console.error('TrueCost: failed to run install-time site adapters check', error);
   }
 
   try {
@@ -373,6 +396,12 @@ async function applySiteAdaptersUpdateForMessage() {
 
 chrome.runtime.onInstalled.addListener((details) => {
   handleInstalled(details);
+});
+
+chrome.runtime.onStartup.addListener(() => {
+  // A browser start is the earliest moment a week-old cache can be compared
+  // against the repo again - much fresher than waiting for the weekly alarm.
+  checkForSiteAdaptersUpdate();
 });
 
 chrome.alarms.onAlarm.addListener((alarm) => {
