@@ -34,10 +34,11 @@
      * @param {"Toman"|"Rial"} unit Currency unit the raw price is expressed in.
      * @param {{hourly_wages:number, daily_hours:number, daily:number, language?:string}} options
      *   User settings. `options.daily` selects the display mode: 0 = hours of work (default),
-     *   1 = days of work (+ leftover real hours), 2 = months of work (30 work-days of
-     *   `daily_hours` each) + leftover days + leftover real hours. `options.language`
-     *   ('fa' default, or 'en') controls the output string's language/digits; it does not
-     *   affect parsing of the input `priceString`.
+     *   1 = work-days of `daily_hours` hours each, plus leftover WORK hours (e.g. 12 hours
+     *   of work with 8-hour days is "1 day and 4 hours"), 2 = months of work (30 work-days
+     *   of `daily_hours` hours each) + leftover work-days + leftover work hours.
+     *   `options.language` ('fa' default, or 'en') controls the output string's
+     *   language/digits; it does not affect parsing of the input `priceString`.
      * @returns {string|null} Human readable string, or null when it can't be computed.
      */
     function TrueCostCalculator(priceString, unit, options) {
@@ -57,15 +58,25 @@
         var fmt = isEnglish ? function (n) { return String(n); } : global.toPersianDigits;
 
         var dailyHours = Number(options && options.daily_hours) || 8;
+        if (dailyHours <= 0) {
+            dailyHours = 8;
+        }
         var totalWorkHours = priceInToman / hourlyWage;
 
-        // Splits a fractional count of `dailyHours`-based work-days into whole days plus a
-        // leftover expressed in real (0-23) clock hours, so the leftover never silently rolls
-        // up into an even bigger unit (e.g. months) the way the old buggy formula used to.
+        // Splits a fractional count of work-days into whole work-days plus leftover WORK
+        // hours (0 .. dailyHours). One "day" always means `dailyHours` hours of work, so the
+        // leftover is measured in the same unit as the day itself: 12 hours of work with
+        // 8-hour days is "1 day and 4 hours", never "1 day and 12 hours" (the old bug
+        // measured the leftover against a 24-hour clock day instead). The math is done in
+        // minutes so fractional daily_hours values (e.g. 7.33) stay exact, and the leftover
+        // never silently rolls up into an even bigger unit (e.g. months) the way the legacy
+        // formula used to.
         function splitDaysAndHours(totalWorkDaysFloat) {
-            var days = Math.floor(totalWorkDaysFloat);
-            var remHours = Math.round((totalWorkDaysFloat - days) * 24);
-            if (remHours >= 24) {
+            var totalMinutes = Math.round(totalWorkDaysFloat * dailyHours * 60);
+            var dayMinutes = Math.round(dailyHours * 60);
+            var days = Math.floor(totalMinutes / dayMinutes);
+            var remHours = Math.round((totalMinutes - days * dayMinutes) / 60);
+            if (remHours >= dailyHours) {
                 days += 1;
                 remHours = 0;
             }

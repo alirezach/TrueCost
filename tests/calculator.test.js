@@ -76,7 +76,7 @@ expect(result).toBeTruthy();
 expect(result).toContain('ماه');
 });
 
-it('daily mode breaks into days and real hours (never silently converts to months)', () => {
+it('daily mode breaks into days and work hours (never silently converts to months)', () => {
 const opts = Object.assign({}, defaultOptions, { daily: 1, language: 'en' });
 // 47253 (hourly) * 8 (daily_hours) * 30 = 11,340,720 Toman -> 30 work days -> 30d 0h
 // (old bug: this used to silently show "1 month" instead of days)
@@ -90,6 +90,55 @@ const opts = Object.assign({}, defaultOptions, { daily: 2, language: 'en' });
 // New format: months + days + hours (e.g. "1mo 0d 0h") instead of a bare decimal
 const result = TrueCostCalculator('11,340,720', 'Toman', opts);
 expect(result).toBe('1mo 0d 0h');
+});
+
+it('daily mode measures the leftover in work hours, not 24h clock hours', () => {
+const opts = Object.assign({}, defaultOptions, { daily: 1, language: 'en' });
+// 12 hours of work with 8-hour work-days -> 1d 4h
+// (old bug: leftover was multiplied by 24, showing "1d 12h" - which users read as 20 hours)
+const result = TrueCostCalculator('567,036', 'Toman', opts); // 47253 * 12
+expect(result).toBe('1d 4h');
+});
+
+it('daily mode shows pure leftover hours below one work-day', () => {
+const opts = Object.assign({}, defaultOptions, { daily: 1, language: 'en' });
+// 7 hours of work with 8-hour work-days -> 0d 7h (old bug: "0d 21h")
+const result = TrueCostCalculator('330,771', 'Toman', opts); // 47253 * 7
+expect(result).toBe('0d 7h');
+});
+
+it('daily mode Persian output matches the hours mode total', () => {
+const opts = Object.assign({}, defaultOptions, { daily: 1 });
+// Same 12 hours of work: hours mode shows «۱۲:۰۰ ساعت کار», day mode must agree
+const result = TrueCostCalculator('567,036', 'Toman', opts);
+expect(result).toBe('۱ روز و ۴ ساعت');
+});
+
+it('daily mode honours a custom daily_hours', () => {
+const opts = Object.assign({}, defaultOptions, { daily: 1, daily_hours: 6, language: 'en' });
+// 12 hours of work with 6-hour work-days -> 2d 0h
+const result = TrueCostCalculator('567,036', 'Toman', opts);
+expect(result).toBe('2d 0h');
+});
+
+it('daily mode rolls a near-full day up cleanly', () => {
+const opts = Object.assign({}, defaultOptions, { daily: 1, language: 'en' });
+// 755,575 / 47253 = 15.99 hours -> 1.99 work-days -> rounds to 2d 0h, not 1d 8h
+const result = TrueCostCalculator('755,575', 'Toman', opts);
+expect(result).toBe('2d 0h');
+});
+
+it('monthly mode keeps leftover work-days and work hours', () => {
+const opts = Object.assign({}, defaultOptions, { daily: 2, language: 'en' });
+// 252 hours of work = 1 month (240h) + 12h -> 1mo 1d 4h
+const result = TrueCostCalculator('11,907,756', 'Toman', opts); // 47253 * 252
+expect(result).toBe('1mo 1d 4h');
+});
+
+it('monthly mode Persian output for a full month', () => {
+const opts = Object.assign({}, defaultOptions, { daily: 2 });
+const result = TrueCostCalculator('11,340,720', 'Toman', opts);
+expect(result).toBe('۱ ماه و ۰ روز و ۰ ساعت');
 });
 
 it('defaults to hour mode for unknown daily values', () => {
