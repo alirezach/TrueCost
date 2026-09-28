@@ -38,7 +38,7 @@ True Cost product poster and interface preview: hourly wage, working hours per d
 <details>
 <summary><strong>نمونهٔ عملکرد در فروشگاه / Price-to-time example</strong></summary>
 
-![نمونهٔ نمایشی True Cost در صفحه‌ای شبیه دیجی‌کالا: تبدیل قیمت به ۶۵۲ ساعت و ۳۰ دقیقه کار](https://t90152039610.p.clickup-attachments.com/t90152039610/ec4f210d-909c-47ef-847a-95eed6ef0cbb/1000780063.jpg)
+![نمونهٔ نمایشی True Cost در صفحه‌ای شبیه دیجی‌کالا: تبدیل قیمت به ۶۵۲ ساعت و ۳۰ دقیقه کار](https://t90152039610.p.clickup-attachments.com/t90152039610/39bd9b08-b56a-45f7-aac6-ac172abb2f7f/1000780062.jpg)
 
 نمونهٔ نمایشی در موکاپ صفحهٔ دیجی‌کالا: با دستمزد ساعتی ۲۰۰٬۰۰۰ تومان، قیمت ۱۳۰٬۵۰۰٬۰۰۰ تومان معادل **۶۵۲ ساعت و ۳۰ دقیقه کار** نمایش داده می‌شود. تصویر برای نمایش عملکرد افزونه ساخته شده و ثبت قیمت زندهٔ فروشگاه نیست.
 
