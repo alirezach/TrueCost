@@ -4,7 +4,7 @@
 [![CI](https://github.com/alirezach/TrueCost/actions/workflows/ci.yml/badge.svg)](https://github.com/alirezach/TrueCost/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
-**نسخهٔ فعلی / Current version: 2.0.0**
+**نسخهٔ فعلی / Current version: 2.0.1**
 
 **[نصب از Chrome Web Store / Install from the Chrome Web Store](https://chromewebstore.google.com/detail/true-cost/icophkfcgelocckeklfbopgjikialcnc)**
 
@@ -14,7 +14,7 @@ True Cost کاری ساده اما رادیکال انجام می‌دهد: قی
 
 **Price is a nominal number. True cost is the slice of your life you traded to earn it.**
 
-True Cost converts detected prices on supported Iranian shopping websites into the hours, days, or months of work needed to earn that amount, based on your own hourly wage. See the time behind every price before you buy. For example, at an hourly wage of 200,000 Toman, an item priced at 800,000 Toman costs four hours of work.
+True Cost converts detected prices on supported Iranian shopping websites into the hours, days, or months of work needed to earn that amount, based on your own hourly wage. See the time behind every price before you buy. For example, at an hourly wage of 75,605 Toman (Iran's 1405 statutory minimum), an item priced at 800,000 Toman costs about ten and a half hours of work (10:35).
 
 True Cost is now available on the **[Chrome Web Store](https://chromewebstore.google.com/detail/true-cost/icophkfcgelocckeklfbopgjikialcnc)**. Install it directly in Chrome, enter your wage, and choose whether to replace detected prices with working time or show the time cost on hover. No True Cost account is required.
 
@@ -27,7 +27,7 @@ The interface is Persian-first. English is available for settings and calculatio
 <details>
 <summary><strong>معرفی افزونه / Meet True Cost</strong></summary>
 
-![True Cost: معرفی افزونه، تنظیم دستمزد ساعتی و پشتیبانی از تومان و ریال](https://u260616004.p.clickup-attachments.com/u260616004/1c8912c4-1bcc-4ee2-9394-1e9704d2f890/generated-image-5db8d1dd-1ada-413f-acd5-9ab2c3f0762e.png?view=open)
+![True Cost: معرفی افزونه، تنظیم دستمزد ساعتی و پشتیبانی از تومان و ریال](https://u260616004.p.clickup-attachments.com/u260616004/2d62e07b-6a88-597b-ab9e-243d81c74cfd/truecost-hero-1280x800.jpg?view=open)
 
 پوستر معرفی True Cost و نمای رابط افزونه: دستمزد ساعتی، ساعات کار روزانه و انتخاب شیوهٔ نمایش زمان. پشتیبانی فعلی تشخیص قیمت برای تومان و ریال است.
 
@@ -38,11 +38,11 @@ True Cost product poster and interface preview: hourly wage, working hours per d
 <details>
 <summary><strong>نمونهٔ عملکرد در فروشگاه / Price-to-time example</strong></summary>
 
-![نمونهٔ نمایشی True Cost در صفحه‌ای شبیه دیجی‌کالا: تبدیل قیمت به ۶۵۲ ساعت و ۳۰ دقیقه کار](https://t90152039610.p.clickup-attachments.com/t90152039610/39bd9b08-b56a-45f7-aac6-ac172abb2f7f/1000780062.jpg)
+![نمونهٔ نمایشی True Cost در صفحه‌ای شبیه دیجی‌کالا: تبدیل قیمت به ۱۷۲۶ ساعت و ۵ دقیقه کار](https://u260616004.p.clickup-attachments.com/u260616004/1b400c22-ddeb-57d2-92c4-6c87fc9e1171/truecost-digikala-inline-1280x800.png?view=open)
 
-نمونهٔ نمایشی در موکاپ صفحهٔ دیجی‌کالا: با دستمزد ساعتی ۲۰۰٬۰۰۰ تومان، قیمت ۱۳۰٬۵۰۰٬۰۰۰ تومان معادل **۶۵۲ ساعت و ۳۰ دقیقه کار** نمایش داده می‌شود. تصویر برای نمایش عملکرد افزونه ساخته شده و ثبت قیمت زندهٔ فروشگاه نیست.
+نمونهٔ نمایشی در موکاپ صفحهٔ دیجی‌کالا: با دستمزد ساعتی ۷۵٬۶۰۵ تومان (حداقل قانونی ۱۴۰۵)، قیمت ۱۳۰٬۵۰۰٬۰۰۰ تومان معادل **۱۷۲۶:۰۵ ساعت کار** نمایش داده می‌شود؛ یعنی حدود ۲۱۵ روز کاری ۸ ساعته. تصویر برای نمایش عملکرد افزونه ساخته شده و ثبت قیمت زندهٔ فروشگاه نیست.
 
-Illustrative Digikala-style mockup: at an hourly wage of 200,000 Toman, a price of 130,500,000 Toman becomes **652 hours and 30 minutes of work**. This image demonstrates the extension's behavior; it is not a live store price capture.
+Illustrative Digikala-style mockup: at an hourly wage of 75,605 Toman (the 1405 statutory minimum), a price of 130,500,000 Toman becomes **1,726 hours and 5 minutes of work**, roughly 215 eight-hour workdays. This image demonstrates the extension's behavior; it is not a live store price capture.
 
 </details>
 
@@ -108,10 +108,20 @@ Price detection depends on each website's layout and may not recognize every pri
 سلکتورهای CSS هر سایت در فایل [`data/sites.csv`](./data/sites.csv) نگه‌داری می‌شوند؛ یک جدول ساده که هرکسی می‌تواند بدون دانش جاوااسکریپت آن را ویرایش و Pull Request بفرستد.
 
 - وقتی سایتی بازطراحی می‌شود و تشخیص قیمت از کار می‌افتد، هرکسی می‌تواند سلکتور جدید را در همین فایل اصلاح کند.
-- افزونه هفته‌ای یک‌بار فایل کوچک [`data/sites-meta.json`](./data/sites-meta.json) را چک می‌کند و در صورت وجود به‌روزرسانی، در تنظیمات پیام «به‌روزرسانی موجود است» نمایش می‌دهد؛ سلکتورهای فعال شما هرگز بدون تأیید خودتان جایگزین نمی‌شوند.
+- افزونه پس از نصب، هر بار که مرورگر باز می‌شود، و در ادامه هفته‌ای یک‌بار، فایل کوچک [`data/sites-meta.json`](./data/sites-meta.json) را با نسخهٔ فعال خودتان مقایسه می‌کند و فقط اگر نسخهٔ جدیدتری واقعاً منتشر شده باشد، در تنظیمات پیام «به‌روزرسانی موجود است» نمایش می‌دهد؛ سلکتورهای فعال شما هرگز بدون تأیید خودتان جایگزین نمی‌شوند و اگر نسخهٔ جدیدی وجود نداشته باشد، هیچ هشداری هم نشان داده نمی‌شود.
 - دیتاست پیشنهادی حداقل دستمزد هم به همین شکل در [`data/wage-dataset.json`](./data/wage-dataset.json) مشارکتی نگه‌داری می‌شود.
 
 جزئیات ستون‌ها و روند کار در [CONTRIBUTING.md](./CONTRIBUTING.md).
+
+## حالت‌های نمایش زمان / Time views
+
+سه حالت برای نمایش هزینهٔ زمانی قیمت‌ها دارید و از پاپ‌آپ افزونه می‌توانید بین آن‌ها جابه‌جا شوید:
+
+- **ساعت** (پیش‌فرض): هزینه به‌صورت ساعت و دقیقهٔ کار، مثلاً «۱۳۲:۱۶ ساعت کار».
+- **روز**: هر «روز» یعنی یک روز کاری به‌طول «میزان ساعت کار در روز»ای که خودتان تنظیم کرده‌اید (پیش‌فرض ۸ ساعت)، و باقی‌مانده هم به ساعتِ کاری حساب می‌شود، نه ساعتِ شبانه‌روز. مثلاً ۱۲ ساعت کار با روز ۸ ساعته «۱ روز و ۴ ساعت» می‌شود؛ و اگر طول روز کاری‌تان را ۶ ساعت تنظیم کنید، همان ۱۲ ساعت «۲ روز و ۰ ساعت» نمایش داده می‌شود.
+- **ماه**: هر «ماه» ۳۰ روز کاری است؛ با روز ۸ ساعته یعنی ۲۴۰ ساعت کار. مثلاً ۲۵۲ ساعت کار «۱ ماه و ۱ روز و ۴ ساعت» نمایش داده می‌شود.
+
+**Time views.** Pick one of three views in the popup. **Hours** (default) shows work time as H:MM (e.g. "132:16 hrs work"). **Days** counts one day as your configured workday length (default 8 hours) and any leftover in work hours, not 24-hour clock hours: 12 hours of work on an 8-hour workday shows "1 day and 4 hours", and with a 6-hour workday it shows "2 days and 0 hours". **Months** counts one month as 30 workdays (240 work hours by default): 252 hours of work shows "1 month, 1 day and 4 hours".
 
 ## امکانات / Features
 

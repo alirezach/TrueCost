@@ -16,6 +16,6 @@ No broad host permissions (`<all_urls>`) are requested. Content scripts are only
 
 ## Data Safety
 
-- All data stays in your browser (`chrome.storage.sync`)
-- No external servers are contacted except for a single GitHub raw file fetch (wage dataset)
+- All data stays in your browser (`chrome.storage.sync` / `chrome.storage.local`)
+- The only outbound traffic is plain GET downloads of public data files from the project's own GitHub repository (wage dataset + site selector database); see [PRIVACY.md](./PRIVACY.md) for the exact list and schedule
 - No user browsing data is collected or transmitted
