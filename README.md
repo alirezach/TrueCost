@@ -20,6 +20,32 @@ True Cost is now available on the **[Chrome Web Store](https://chromewebstore.go
 
 The interface is Persian-first. English is available for settings and calculation results, while the popup and manual picker currently contain Persian text. Automatic recognition currently focuses on Toman and Rial; support for currencies such as USD, EUR, and GBP is a [roadmap goal](#نقشه-راه--roadmap), not a current feature. Contributions toward broader currency and language support are welcome.
 
+## تصاویر و نمونهٔ عملکرد / Preview & usage example
+
+برای دیدن تصاویر، عنوان هر بخش را باز کنید. / Expand each section to view the images.
+
+<details>
+<summary><strong>معرفی افزونه / Meet True Cost</strong></summary>
+
+![True Cost: معرفی افزونه، تنظیم دستمزد ساعتی و پشتیبانی از تومان و ریال](https://u260616004.p.clickup-attachments.com/u260616004/1c8912c4-1bcc-4ee2-9394-1e9704d2f890/generated-image-5db8d1dd-1ada-413f-acd5-9ab2c3f0762e.png?view=open)
+
+پوستر معرفی True Cost و نمای رابط افزونه: دستمزد ساعتی، ساعات کار روزانه و انتخاب شیوهٔ نمایش زمان. پشتیبانی فعلی تشخیص قیمت برای تومان و ریال است.
+
+True Cost product poster and interface preview: hourly wage, working hours per day, and time-display controls. Current price recognition supports Toman and Rial.
+
+</details>
+
+<details>
+<summary><strong>نمونهٔ عملکرد در فروشگاه / Price-to-time example</strong></summary>
+
+![نمونهٔ نمایشی True Cost در صفحه‌ای شبیه دیجی‌کالا: تبدیل قیمت به ۶۵۲ ساعت و ۳۰ دقیقه کار](https://t90152039610.p.clickup-attachments.com/t90152039610/ec4f210d-909c-47ef-847a-95eed6ef0cbb/1000780063.jpg)
+
+نمونهٔ نمایشی در موکاپ صفحهٔ دیجی‌کالا: با دستمزد ساعتی ۲۰۰٬۰۰۰ تومان، قیمت ۱۳۰٬۵۰۰٬۰۰۰ تومان معادل **۶۵۲ ساعت و ۳۰ دقیقه کار** نمایش داده می‌شود. تصویر برای نمایش عملکرد افزونه ساخته شده و ثبت قیمت زندهٔ فروشگاه نیست.
+
+Illustrative Digikala-style mockup: at an hourly wage of 200,000 Toman, a price of 130,500,000 Toman becomes **652 hours and 30 minutes of work**. This image demonstrates the extension's behavior; it is not a live store price capture.
+
+</details>
+
 ## نصب / Installation
 
 ### نصب از کروم استور (پیشنهادی)
