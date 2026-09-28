@@ -171,8 +171,7 @@ npm run crawl     # کرال مجدد سایت‌های زنده و مقایسه
 
 - **ایدهٔ اصلی**: مفهوم *«عمر من»*، اکستنشنی که هیچ‌وقت منتشر نشد، که توسط [جاوید ایزدفر](https://twitter.com/JavidIzadfar) به‌صورت عمومی مطرح شد. مقالهٔ ایشان: [«عمر من»: اکستنشنی که هیچ‌وقت منتشر نمی‌کنم!](https://virgool.io/@JavidIzadfar/عمر-من-اکستنشنی-که-هیچوقت-منتشر-نمیکنم-ro0ruevctaio)
 - **اولین پیاده‌سازی**: *Iranian Lifetime Calculator*، ساختهٔ **[محمود اسکندری](https://github.com/mahmoud-eskandari)** در سال ۲۰۱۸. اولین نسخهٔ کارکردی و انتشار آن روی Chrome Web Store کار ایشان بوده. مخزن اصلی: [mahmoud-eskandari/IPTT](https://github.com/mahmoud-eskandari/IPTT). مشارکت‌های اولیه از [یحیی صیادعرب‌آبادی](https://github.com/TheYahya) (حالت محاسبهٔ روزانه) و حسین مرزبان (رابط کاربری).
-- **این ادامه**: پس از از کار افتادن نسخهٔ اصلی، افزونه از صفر بازسازی شد و با نام **True Cost** توسط [AliRezaCh](https://github.com/alirezach) ادامه یافت؛ پیش‌تر در مخزن [alirezach/IPTT](https://github.com/alirezach/IPTT) توسعه داده می‌شد.
-
+- **این ادامه**: پس از از کار افتادن نسخهٔ اصلی، افزونه از صفر بازسازی شد و با نام **True Cost** توسط [AliRezaCh](https://github.com/alirezach) ادامه یافت.
 ## مجوز
 
 [MIT](./LICENSE)
